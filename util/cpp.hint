@@ -1,0 +1,12 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define _UTIL_API namespace util {
+#define nameof(X)
+#define STDOUT
+#define STDERR
+#define __cplusplus
+#define _STD
+#define _VECTOR_INITIAL_SIZE
+#define _THROW_OOM() throw std::exception("failed to allocate")
+#define _UTIL_API_END }
