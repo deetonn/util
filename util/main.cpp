@@ -1,5 +1,3 @@
-#pragma once
-
 #include "utility.h"
 
 #include <iostream>
@@ -9,11 +7,6 @@ using namespace util::typedefs;
 
 int main()
 {
-    util::dict<std::string, int> thing = {};
-
-    thing.insert("funny word", 69);
-    thing.insert("other word", 1);
-    const auto& funny = thing["non existant"];
-
-    printf("%i -- length: %zu", funny, thing.size());
+    auto info = util::type_info<const char*>::raw_name();
+    std::cout << info << "\n";
 }

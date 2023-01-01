@@ -71,5 +71,6 @@ public:
 // https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html
 
 #define TRY(name, expression) auto _Temp_$##name = expression; if (_Temp_$##name.has_problem()) { return _Temp_$##name.error(); } auto name = _Temp_$##name.unwrap();
+#define MUST(name, expression) auto _Temp_$##name = expression; if (_Temp_$##name.has_problem()) { throw std::exception(_Temp_$##name.error().what()); } auto name = _Temp_$##name.unwrap();
 
 _UTIL_API_END
