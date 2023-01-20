@@ -5,8 +5,10 @@
 
 #define _NODISCARD [[nodiscard]]
 #define _SAFEPTR_NODISCARD [[nodiscard("discarding the return value will instantly free the allocated memory and renders the call pointless")]]
+#define _ALLOC_NODISCARD [[nodiscard("the function allocates and gives ownership, discarding this value is a memory leak")]]
 
 #include <utility>
+#include <assert.h>
 
 _UTIL_MEMORY_API_BEGIN
 
@@ -21,7 +23,7 @@ public:
         : m_ptr(new T)
     {}
 
-    auto_deleted_pointer(T const& _Initializer)
+    _IMPLICIT auto_deleted_pointer (T const& _Initializer)
         : m_ptr(new T(_Initializer))
     {}
 
@@ -31,7 +33,7 @@ public:
     }
 
     inline bool okay() { return m_ptr != nullptr; }
-    inline const T& get() { return *m_ptr; }
+    inline const T& get() const { return *m_ptr; }
     inline T* unsafe_get() { return m_ptr; }
 
     inline void swap(Self& _Other) {
@@ -47,6 +49,12 @@ public:
         return *m_ptr;
     }
     inline T* operator ->() { return m_ptr; }
+    inline T* operator &() { return m_ptr; }
+
+    friend std::ostream& operator << (std::ostream& _Ostr, Self const& self) {
+        std::cout << self.get();
+        return _Ostr;
+    }
 };
 
 template<typename T>
@@ -79,15 +87,24 @@ inline size_t memset(void* _Data, uint8_t _Byte, size_t _Length)
     return _Length;
 }
 
-#define ZeroMemory(dst, len) util::memset(dst, 0, len)
+template<class T>
+inline size_t memset(T* _Data, uint8_t _Byte) {
+    auto* _Bytes = reinterpret_cast<uint8_t*>(_Data);
+    constexpr auto _Length = sizeof(T);
+    for (auto i = 0u; i < _Length; ++i)
+        _Bytes[i] = _Byte;
+    return _Length;
+}
+
+#define nullify(dst, type) util::memset<type>(dst, (uint8_t)0)
 
 template<typename _Ty>
-_Ty* malloc() {
+_ALLOC_NODISCARD _Ty* malloc() {
     return static_cast<_Ty*>(_STD malloc(sizeof(_Ty)));
 }
 
 template<typename _Ty>
-_Ty* malloc(_Ty const& _Init) {
+_ALLOC_NODISCARD _Ty* malloc(_Ty const& _Init) {
     auto* _Mem = static_cast<_Ty*>(_STD malloc(sizeof(_Ty)));
     *_Mem = _STD move(_Init);
     return _Mem;

@@ -20,6 +20,12 @@ struct pair {
     V value;
 };
 
+template<typename _Kty, typename _Vty>
+struct pair_view {
+    _Kty& key;
+    _Vty& value;
+};
+
 template<class K, class V>
 std::ostream& operator <<(std::ostream& _Ostr, pair<K, V> pair) {
     _Ostr << "{" << pair.key << "," << pair.value << "}";
@@ -124,10 +130,10 @@ public:
             : m_iterator(_Position)
         {}
 
-        using difference_type = long;
-        using value_type = long;
-        using pointer = const long*;
-        using reference = const long&;
+        using difference_type = uintptr_t;
+        using value_type = pair_view<_Key, _Val>;
+        using pointer = const pair_type*;
+        using reference = const pair_type&;
         using iterator_category = std::forward_iterator_tag;
 
         iterator& operator ++() {
@@ -156,7 +162,10 @@ public:
         bool operator==(iterator other) const { return this->m_iterator == other.m_iterator; }
         bool operator!=(iterator other) const { return !(*this == other); }
 
-        pair_type& operator*() { return *(*m_iterator); }
+        value_type operator*() { 
+            auto& _Actual = *(*m_iterator);
+            return pair_view{ _Actual.key, _Actual.value };
+        }
     };
 
     iterator begin() noexcept { return iterator(m_nodes); }

@@ -33,11 +33,11 @@ using size_t = unsigned int;
 #endif
 
 template<size_t _Min, size_t _Max>
-class NumberBetween {
+class between {
 private:
     size_t m_number{ _Max - _Min };
 public:
-    constexpr NumberBetween(size_t _Initializer) {
+    _IMPLICIT constexpr between(size_t _Initializer) {
         if constexpr(_Initializer > _Max || _Min > _Initializer) {
             throw std::exception("out-of-range initializer");
         }

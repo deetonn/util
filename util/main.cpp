@@ -1,12 +1,9 @@
 #include "utility.h"
 
-#include <iostream>
-#include <vector>
-
 using namespace util::typedefs;
+using namespace std::chrono_literals;
 
-int main()
+int main(int argc, char** argv)
 {
-    auto info = util::type_info<const char*>::raw_name();
-    std::cout << info << "\n";
+
 }

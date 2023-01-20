@@ -23,7 +23,7 @@ inline static _Iostream _Io_Streams[4] = {
 #define STDIN  2
 #define STD_UNKNOWN 3
 
-_Iostream* __io_func(unsigned mode) {
+auto __io_func(unsigned mode) -> _Iostream* {
     if (mode != STDOUT && mode != STDERR && mode != STDIN)
         return &_Io_Streams[STD_UNKNOWN];
     return &_Io_Streams[mode];
@@ -33,7 +33,7 @@ static inline _Iostream* out = __io_func(STDOUT);
 static inline _Iostream* err = __io_func(STDERR);
 static inline _Iostream* in  = __io_func(STDIN);
 
-size_t tfprintf(_Io_stream* _Stream, const char* _Fmt, ...)
+auto tfprintf(_Io_stream* _Stream, const char* _Fmt, ...) -> size_t
 {
     if (!_Stream)
         return 0;
@@ -41,11 +41,11 @@ size_t tfprintf(_Io_stream* _Stream, const char* _Fmt, ...)
     __crt_va_start(args, _Fmt);
     auto count = vfprintf(_Stream->handle, _Fmt, args);
     __crt_va_end(args);
-    _Stream->handle++;
+    _Stream->calls++;
     return count;
 }
 
-size_t tprintf(const char* _Fmt, ...) {
+auto tprintf(const char* _Fmt, ...) -> size_t {
     va_list args = {};
     __crt_va_start(args, _Fmt);
     auto count = vfprintf(out->handle, _Fmt, args);
@@ -54,7 +54,7 @@ size_t tprintf(const char* _Fmt, ...) {
     return count;
 }
 
-size_t ttl(_Io_stream* _Stream) {
+auto ttl(_Io_stream* _Stream) -> size_t {
     if (_Stream)
         return _Stream->calls;
     return 0;

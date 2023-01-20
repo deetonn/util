@@ -242,10 +242,10 @@ public:
             : m_iterator(_Position)
         {}
 
-        using difference_type = long;
-        using value_type = long;
-        using pointer = const long*;
-        using reference = const long&;
+        using difference_type = uintptr_t;
+        using value_type = _Ty;
+        using pointer = const _Ty*;
+        using reference = const _Ty&;
         using iterator_category = std::forward_iterator_tag;
 
         iterator& operator ++() {
@@ -372,6 +372,10 @@ void display(auto& iterable) {
         else
             std::cout << *start << "]";
     }
+}
+
+auto length(const auto& iterator) -> size_t {
+    return iterator.size();
 }
 
 _UTIL_API_END

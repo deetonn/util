@@ -10,3 +10,7 @@
 #define _VECTOR_INITIAL_SIZE
 #define _THROW_OOM() throw std::exception("failed to allocate")
 #define _UTIL_API_END }
+#define _Conditional_Noexcept(_Condition_) noexcept (_Condition_)
+#define _Maybe_Constantdef
+#define UTIL_DEF
+#define _Likely_

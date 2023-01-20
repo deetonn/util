@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+#include <cassert>
+
 _UTIL_API
 
 class Error {
@@ -15,7 +17,15 @@ public:
     virtual const char* what() const noexcept {
         return m_what;
     }
+
+    static inline Error from(const char* msg) {
+        return Error(msg);
+    }
 };
+
+inline auto make_error(const char* _Msg) noexcept -> Error {
+    return Error::from(_Msg);
+}
 
 template<typename T>
 class ErrorOr
@@ -24,14 +34,14 @@ private:
     Error* m_problem{ nullptr };
     T* m_value{ nullptr };
 public:
-    ErrorOr(Error&& _Problem) {
+    _IMPLICIT ErrorOr(Error&& _Problem) {
         m_problem = static_cast<Error*>(_STD malloc(sizeof(Error)));
         if (!m_problem) {
             throw std::exception("out of memory");
         }
         *m_problem = _STD move(_Problem);
     }
-    ErrorOr(T&& _Value) {
+    _IMPLICIT ErrorOr(T&& _Value) {
         m_value = static_cast<T*>(_STD malloc(sizeof(T)));
         if (!m_value) {
             throw std::exception("out of memory");
@@ -72,5 +82,51 @@ public:
 
 #define TRY(name, expression) auto _Temp_$##name = expression; if (_Temp_$##name.has_problem()) { return _Temp_$##name.error(); } auto name = _Temp_$##name.unwrap();
 #define MUST(name, expression) auto _Temp_$##name = expression; if (_Temp_$##name.has_problem()) { throw std::exception(_Temp_$##name.error().what()); } auto name = _Temp_$##name.unwrap();
+
+template<typename _Ty>
+_Ty unwrap(ErrorOr<_Ty>& _Eo) {
+    return _Eo.unwrap();
+}
+
+/// <summary>
+/// Maybe T
+/// </summary>
+/// <typeparam name="T"></typeparam>
+template<typename T>
+class maybe {
+private:
+    T* tee{ nullptr };
+public:
+    maybe() = default;
+    maybe(maybe const&) = delete;
+    maybe(maybe&&) = default;
+    maybe(T value) {
+        tee = new T;
+        *tee = value;
+    }
+
+    /// <summary>
+    /// Get the value and release the memory containing it.
+    /// </summary>
+    /// <returns></returns>
+    _NODISCARD T&& unwrap() noexcept {
+        assert(this->tee != nullptr && "cannot unwrap `maybe` with no value");
+        T copy = *tee;
+        delete tee;
+        return _STD move(copy);
+    }
+    _NODISCARD T unwrap_or(T const& _Other) noexcept {
+        if (!this->tee) {
+            return _Other;
+        }
+        T copy = *tee;
+        delete tee;
+        return _STD move(copy);
+    }
+
+    _NODISCARD bool has_value() const noexcept {
+        return (tee != nullptr);
+    }
+};
 
 _UTIL_API_END
