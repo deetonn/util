@@ -64,10 +64,26 @@ public:
         _STD memset(m_nodes, NULL, _DICT_INITIAL_SIZE * sizeof(pair_type*));
     }
 
+    dict(std::initializer_list<pair_type> _Initializer)
+        : dict()
+    {
+        for (const pair_type& _Pair : _Initializer) {
+            this->insert(_Pair.key, _Pair.value);
+        }
+    }
+
     pos_type insert(_Key const& key, _Val&& value) {
         auto _Hash = this->hash_item(key);
         _Ensure_capacity();
         m_nodes[_Hash] = new pair_type{ key, _STD move(value) };
+        m_count++;
+        return _Hash;
+    }
+
+    pos_type insert(_Key const& key, _Val const& value) {
+        auto _Hash = this->hash_item(key);
+        _Ensure_capacity();
+        m_nodes[_Hash] = new pair_type{ key, value };
         m_count++;
         return _Hash;
     }
@@ -147,7 +163,7 @@ public:
         }
 
         bool operator <(iterator const& other) {
-            return m_iterator < other.m_iterator;
+            return m_iterator <= other.m_iterator;
         }
         bool operator >(iterator const& other) {
             return !(*this < other);
@@ -245,6 +261,14 @@ using dict_pair = pair<Key, Value>;
 
 template<hashable Key, collection_suitable Value>
 using dict_mutator = std::function<dict_pair<Key, Value>(dict_pair<Key, Value>&)>;
+
+template<hashable _Kty, collection_suitable _Vty>
+dict<_Kty, _Vty> make_dict(
+    std::initializer_list<dict_pair<_Kty, _Vty>> _Init
+)
+{
+    return dict<_Kty, _Vty>(_Init);
+}
 
 template<hashable Key, collection_suitable Value>
 dict<Key, Value> map(dict<Key, Value>& dict, dict_mutator<Key, Value> mutator) {

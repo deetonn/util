@@ -39,6 +39,7 @@ private:
 public:
     _IMPLICIT constexpr between(size_t _Initializer) {
         if constexpr(_Initializer > _Max || _Min > _Initializer) {
+            // keep throw, constexpr context
             throw std::exception("out-of-range initializer");
         }
         m_number = _Initializer;
@@ -46,7 +47,7 @@ public:
 
     size_t set(size_t s) {
         if (s > _Max || _Min > s) {
-            throw std::exception("out-of-range value");
+            util::panic("value out of range to set between<>");
         }
         m_number = s;
         return m_number;

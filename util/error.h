@@ -37,14 +37,14 @@ public:
     _IMPLICIT ErrorOr(Error&& _Problem) {
         m_problem = static_cast<Error*>(_STD malloc(sizeof(Error)));
         if (!m_problem) {
-            throw std::exception("out of memory");
+            util::panic("cannot allocate for ErrorOr due to lack of memory.");
         }
         *m_problem = _STD move(_Problem);
     }
     _IMPLICIT ErrorOr(T&& _Value) {
         m_value = static_cast<T*>(_STD malloc(sizeof(T)));
         if (!m_value) {
-            throw std::exception("out of memory");
+            util::panic("cannot allocate for ErrorOr due to lack of memory.");
         }
         *m_value = _STD move(_Value);
     }
@@ -81,7 +81,7 @@ public:
 // https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html
 
 #define TRY(name, expression) auto _Temp_$##name = expression; if (_Temp_$##name.has_problem()) { return _Temp_$##name.error(); } auto name = _Temp_$##name.unwrap();
-#define MUST(name, expression) auto _Temp_$##name = expression; if (_Temp_$##name.has_problem()) { throw std::exception(_Temp_$##name.error().what()); } auto name = _Temp_$##name.unwrap();
+#define MUST(name, expression) auto _Temp_$##name = expression; if (_Temp_$##name.has_problem()) { util::panic(_Temp_$##name.error().what()); } auto name = _Temp_$##name.unwrap();
 
 template<typename _Ty>
 _Ty unwrap(ErrorOr<_Ty>& _Eo) {
@@ -123,9 +123,24 @@ public:
         delete tee;
         return _STD move(copy);
     }
-
     _NODISCARD bool has_value() const noexcept {
         return (tee != nullptr);
+    }
+    _NODISCARD bool is_empty() const noexcept {
+        return !has_value();
+    }
+};
+
+template<typename T>
+class compile_time_storage {
+private:
+    T m_t;
+public:
+    constexpr compile_time_storage(T const& _Val)
+        : m_t(_Val)
+    {}
+    constexpr const T& value() const noexcept {
+        return m_t;
     }
 };
 

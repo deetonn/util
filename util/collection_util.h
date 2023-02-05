@@ -101,6 +101,12 @@ public:
 
     iterator begin() noexcept { return iterator(m_stack); }
     iterator end() noexcept { return iterator(m_stack + m_position); }
+    std::reverse_iterator<_Ty> rbegin() {
+        return std::reverse_iterator<_Ty>(end());
+    }
+    std::reverse_iterator<_Ty> rend() {
+        return std::reverse_iterator<_Ty>(begin());
+    }
 };
 
 #ifndef _VECTOR_INITIAL_SIZE
@@ -111,7 +117,7 @@ public:
 #define _VECTOR_CACHE_SIZE 10
 #endif
 
-#define _THROW_OOM() throw std::exception("failed to allocate")
+#define _ERROR_OOM_() util::panic("failed to allocate enough memory");
 
 template<collection_suitable _Ty>
 class vector {
@@ -132,7 +138,7 @@ public:
         /*m_element_count = 0*/
 
         if (!m_elements) {
-            _THROW_OOM();
+            _ERROR_OOM_();
         }
     }
     vector(std::initializer_list<_Ty> initializer)
@@ -148,7 +154,7 @@ public:
     {
         m_elements = static_cast<_Ty*>(_STD calloc(_Count, sizeof(_Ty)));
         if (!m_elements) {
-            _THROW_OOM();
+            _ERROR_OOM_();
         }
     }
 
@@ -163,7 +169,6 @@ public:
             auto _Position = m_cache.pop();
             auto* _Location = (m_elements + _Position);
             *_Location = _STD move(_Value);
-            _Increment();
             return;
         }
         _Ensure_Capacity();
@@ -177,7 +182,6 @@ public:
             auto _Position = m_cache.pop();
             auto* _Location = (m_elements + _Position);
             *_Location = _Value;
-            _Increment();
             return;
         }
         _Ensure_Capacity();
@@ -191,21 +195,18 @@ public:
             return _STD move(_Ty());
         if (m_cache.at_capacity()) {
             /* shifting the array down would invalidate the cache...*/
-            throw std::exception("fuck that");
+            util::panic("cannot shift the array down while at capacity");
         }
 
         auto _Result = m_cache.push(_Position);
         if (_Result != Ok) {
-            throw std::exception("not enough space to save position");
+            util::panic("not enough space to save position");
         }
         return _STD move(this->at_mut(_Position));
     }
 
     const _Ty& at(size_t _Pos) const {
-        if (_Pos < 0 || _Pos > m_element_count) {
-            return m_default;
-        }
-        return m_elements[_Pos];
+        return this->at_mut(_Pos);
     }
     _Ty& at_mut(size_t _Pos) {
         if (_Pos < 0 || _Pos > m_element_count) {
@@ -293,7 +294,7 @@ private:
         auto* _Newspace 
             = static_cast<_Ty*>(_STD calloc(_Newtotal, sizeof (_Ty)));
         if (!_Newspace) {
-            _THROW_OOM();
+            _ERROR_OOM_();
         }
         /* copy the current nodes into our newly allocated space*/
         _STD memmove(_Newspace, m_elements, _Total);
@@ -392,4 +393,7 @@ namespace std {
     }
 }
 
+// Misc containers
+
 #include "dict.hpp"
+#include "bits.hpp"

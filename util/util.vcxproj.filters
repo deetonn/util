@@ -63,6 +63,9 @@
     <ClInclude Include="meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bits.hpp">
+      <Filter>Header Files\collections</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

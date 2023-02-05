@@ -21,7 +21,6 @@
 #include "common.h"
 
 #include <thread>
-#include <stacktrace>
 
 #include <iostream>
 #include <vector>
@@ -45,78 +44,40 @@ _CONSTEXPR double __version() {
     return 0.1;
 }
 
-/* 
-This function is templated to avoid it being compiled for
-applications that dont use it.
-*/
-template<typename _Void = std::void_t<void>>
-[[noreturn]] auto panic(const char* message) -> _Void {
-    auto _Ostr = _UTL __io_func(STDERR);
-    __assume(_Ostr != nullptr);
-    __assume(message != nullptr);
-    /*
-    verify at least one byte has been written for
-    proper io diagnostics
-    */
-    if (!_Ostr->calls) {
-        _UTL tfprintf(_Ostr, "\n\0");
-    }
-
-    auto stack = _STD stacktrace::current();
-    auto _Position = 0;
-    // Traverse the stack trace backwards
-    for (
-        auto frame = stack.rbegin();
-        frame != stack.rend();
-        ++frame, _Position++
-    ) 
-    {
-        const auto& _Fr = *frame;
-        if (_Position == stack.size() - 2) {
-            _UTL tfprintf(_Ostr,
-                "%s <-- [panic here at line %zu in file %s]\n",
-                _Fr.description().c_str(),
-                _Fr.source_line(),
-                _Fr.source_file().c_str());
-        }
-        else {
-            _UTL tfprintf(_Ostr,
-                "[%zu] %s\n",
-                _Fr.source_line(),
-                _Fr.description().c_str());
-        }
-    }
-
-    _UTL tfprintf(
-        _Ostr,
-        "\n[panic]: %s\n", message
-    );
-
-    std::unreachable();
-}
-
-/*
-This function is templated to avoid it being compiled for
-applications that dont use it.
-This function will panic if the condition is true.
-*/
-template<typename _Void = std::void_t<void>>
-auto panic_if(bool _Cond, const char* _Msg) -> _Void {
-    if (_Cond)
-        _UTL panic(_Msg);
-}
-
-template<typename _Void = std::void_t<void>>
-auto panic_if_not(bool _Cond, const char* _Msg) -> _Void {
-    if (!_Cond)
-        _UTL panic(_Msg);
-}
-
-_NORETURN auto quit() -> decltype(auto) {
-    _UTL panic("quit() was called");
-}
-
 template<typename U>
 inline U declval() {}
+
+template<typename... Types>
+auto print(
+    const std::_Fmt_string<Types...> _Fmt,
+    Types... _Args) -> void
+{
+    util::writeln<Types...>(_Fmt, _Args...);
+}
+
+const std::vector<std::string>& args() 
+  noexcept {
+    static std::vector<std::string> _Vec = {};
+    if (_Vec.empty()) {
+        auto& argc = *__p___argc();
+        auto argv = *__p___argv();
+
+        for (auto i = 0; i < argc; ++i) {
+            auto s = std::string{ argv[i] };
+            _Vec.push_back(_STD move(s));
+        }
+    }
+    return _Vec;
+}
+
+size_t argc()
+  noexcept {
+    return args().size();
+}
+
+constexpr std::string const& path()
+  noexcept {
+    return args().front();
+}
 
 _UTIL_API_END

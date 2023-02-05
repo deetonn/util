@@ -51,6 +51,10 @@ public:
     inline T* operator ->() { return m_ptr; }
     inline T* operator &() { return m_ptr; }
 
+    auto _Gett() {
+        return m_ptr;
+    }
+
     friend std::ostream& operator << (std::ostream& _Ostr, Self const& self) {
         std::cout << self.get();
         return _Ostr;
@@ -96,6 +100,11 @@ inline size_t memset(T* _Data, uint8_t _Byte) {
     return _Length;
 }
 
+template<class T>
+inline size_t memset(safe_ptr<T>& _Ptr, uint8_t _Byte) {
+    return _UTL memset(_Ptr._Gett(), _Byte);
+}
+
 #define nullify(dst, type) util::memset<type>(dst, (uint8_t)0)
 
 template<typename _Ty>
@@ -114,5 +123,26 @@ template<typename _Ty>
 void free(_Ty* _Memory) {
     _STD free((void *)_Memory);
 }
+
+template<class _Ty>
+class never_deleted {
+private:
+    _Ty* _Al{ nullptr };
+public:
+    never_deleted()
+        : _Al(new _Ty)
+    {}
+    never_deleted(_Ty const& _Li)
+        : _Al(new _Ty{ _STD move(_Li) })
+    {}
+
+    _Ty const* ptr() const noexcept {
+        return _Al;
+    }
+
+    _Ty* unsafe_ptr() const noexcept {
+        return _Al;
+    }
+};
 
 _UTIL_MEMORY_API_END

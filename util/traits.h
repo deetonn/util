@@ -6,27 +6,35 @@ _UTIL_API
 
 template<class _Ty, class _Ret>
 concept Add = requires(_Ty t) {
-    { t.add((_Ret)0) } -> std::same_as<_Ret>;
+    { t.operator+((_Ret)0) } -> std::same_as<_Ret>;
 };
 
 template<class _Ty, class _Ret>
 concept Sub = requires (_Ty t) {
-    { t.subtract((_Ret)0) } -> std::same_as<_Ret>;
+    { t.operator-((_Ret)0) } -> std::same_as<_Ret>;
 };
 
 template<class _Ty, class _Ret>
 concept Div = requires (_Ty t) {
-    { t.divide((_Ret)1) } -> std::same_as<_Ret>;
+    { t.operator/((_Ret)1) } -> std::same_as<_Ret>;
 };
 
 template<class _Ty, class _Ret>
 concept Mul = requires (_Ty t) {
-    { t.multiply((_Ret)0) } -> std::same_as<_Ret>;
+    { t.operator*((_Ret)0) } -> std::same_as<_Ret>;
 };
 
 template<class _Ty, class _Ret>
 concept BasicMathCapable =
     Add<_Ty, _Ret> && Sub<_Ty, _Ret> &&
     Div<_Ty, _Ret> && Mul<_Ty, _Ret>;
+
+template<class _Ty>
+concept iterable = requires (_Ty t) {
+    { t.begin() } -> std::same_as<typename _Ty::template const_iterator<typename _Ty::value_type>>;
+    { t.end() } -> std::same_as<typename _Ty::template const_iterator<typename _Ty::value_type>>;
+    { t.operator*() } -> std::same_as<const typename _Ty::value_type>;
+    { t.operator++() } -> std::same_as<_Ty>;
+};
 
 _UTIL_API_END

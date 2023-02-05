@@ -4,6 +4,8 @@
 
 #include <cstdio>
 
+#include <format>
+
 _UTIL_API
 
 typedef struct _Io_stream {
@@ -58,6 +60,24 @@ auto ttl(_Io_stream* _Stream) -> size_t {
     if (_Stream)
         return _Stream->calls;
     return 0;
+}
+
+template<typename... Types>
+auto writeln(
+    const std::_Fmt_string<Types...> _Fmt,
+    Types... _Args) -> void
+{
+    auto _Formatted = _STD vformat(_Fmt._Str, _STD make_format_args(_Args...));
+    std::cout << _Formatted << "\n";
+}
+
+template<typename... Types>
+auto write(
+    const std::_Fmt_string<Types...> _Fmt,
+    Types... _Args) -> void 
+{
+    auto _Formatted = _STD vformat(_Fmt._Str, _STD make_format_args(_Args...));
+    std::cout << _Formatted;
 }
 
 _UTIL_API_END
