@@ -7,6 +7,9 @@
 #define _NORETURN [[noreturn]]
 #endif
 
+#ifndef __FTD
+#define __FTD
+
 #include "type_info.h"
 #include "string_util.h"
 #include "memory_util.h"
@@ -87,3 +90,5 @@ _UTIL_API_END
 
 namespace ftd = utl;
 namespace future = ftd::future;
+
+#endif

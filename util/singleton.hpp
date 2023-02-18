@@ -52,4 +52,14 @@ public:
     }
 };
 
+template<typename T, typename ...Args>
+auto singleton_init(const Args&... _Args) -> singleton_key<T> {
+    return singleton<T>::initialize<Args>(_Args);
+}
+
+template<typename T>
+auto singleton_get() -> T& {
+    return singleton<T>::the();
+}
+
 _UTIL_API_END
