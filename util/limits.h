@@ -159,7 +159,7 @@ OVERLOAD_LIMIT(long double) {
 
 #pragma warning(pop)
 
-OVERLOAD_LIMIT(bool) {
+OVERLOAD_LIMIT(BOOL) {
     constexpr static inline size_t min() {
         return false;
     }

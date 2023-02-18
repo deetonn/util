@@ -1,7 +1,7 @@
 #pragma once
 
-#define _UTIL_MEMORY_API_BEGIN namespace util {
-#define _UTIL_MEMORY_API_END }
+#define _UTIL_MEMORY_API_BEGIN _UTIL_API
+#define _UTIL_MEMORY_API_END _UTIL_API_END
 
 #define _NODISCARD [[nodiscard]]
 #define _SAFEPTR_NODISCARD [[nodiscard("discarding the return value will instantly free the allocated memory and renders the call pointless")]]
@@ -10,29 +10,31 @@
 #include <utility>
 #include <assert.h>
 
+#include "io_util.h"
+
 _UTIL_MEMORY_API_BEGIN
 
 template<class T>
-class auto_deleted_pointer {
+class default_delete {
 public:
-    using Self = auto_deleted_pointer<T>;
+    using Self = default_delete<T>;
 private:
     T* m_ptr{ nullptr };
 public:
-    auto_deleted_pointer()
+    default_delete()
         : m_ptr(new T)
     {}
 
-    _IMPLICIT auto_deleted_pointer (T const& _Initializer)
+    _IMPLICIT default_delete (T const& _Initializer)
         : m_ptr(new T(_Initializer))
     {}
 
-    ~auto_deleted_pointer()
+    ~default_delete()
     {
         delete m_ptr;
     }
 
-    inline bool okay() { return m_ptr != nullptr; }
+    inline BOOL okay() { return m_ptr != nullptr; }
     inline const T& get() const { return *m_ptr; }
     inline T* unsafe_get() { return m_ptr; }
 
@@ -62,7 +64,7 @@ public:
 };
 
 template<typename T>
-using safe_ptr = auto_deleted_pointer<T>;
+using safe_ptr = default_delete<T>;
 
 template<typename _Ty>
 _SAFEPTR_NODISCARD safe_ptr<_Ty> make_safe() { 
@@ -115,6 +117,8 @@ _ALLOC_NODISCARD _Ty* malloc() {
 template<typename _Ty>
 _ALLOC_NODISCARD _Ty* malloc(_Ty const& _Init) {
     auto* _Mem = static_cast<_Ty*>(_STD malloc(sizeof(_Ty)));
+    if (!_Mem)
+        _UTL panic("failed to allocate");
     *_Mem = _STD move(_Init);
     return _Mem;
 }
@@ -144,5 +148,87 @@ public:
         return _Al;
     }
 };
+
+class default_allocator {
+private:
+    size_t _M_ttl_bytes{ 0 };
+public:
+    template<typename T>
+    inline T* alloc() {
+        _M_ttl_bytes += sizeof(T);
+        T* _Mem = new(std::nothrow) T;
+        if (!_Mem) {
+            _UTL panic("failed to allocate");
+        }
+        return _Mem;
+    }
+
+    template<typename T>
+    inline T* alloc_many(size_t _Total) {
+        _M_ttl_bytes += (_Total * sizeof(T));
+        T* _Mem = new(std::nothrow) T[_Total];
+        if (!_Mem)
+            _UTL panic("failed to allocate");
+        return _Mem;
+    }
+
+    template<typename T>
+    inline void destroy(T* _Mem) {
+        delete _Mem;
+    }
+
+    inline const size_t& total() const noexcept {
+        return _M_ttl_bytes;
+    }
+};
+
+template<typename T>
+class memory_view {
+private:
+    uint8_t* m_view{ nullptr };
+public:
+    memory_view(T& _Mref) noexcept {
+        m_view = reinterpret_cast<uint8_t*>(&_Mref);
+    }
+
+    _CONSTEXPR size_t size() const noexcept(true) {
+        return sizeof T;
+    }
+
+    auto view() const noexcept -> std::void_t<int> {
+        _UTL writeln("Memory View for {} ({} bytes)\n", _UTL type_info<T>::name(), size());
+        for (auto i = 0; i < size(); ++i) {
+            if (i % 5 == 0) {
+                std::cout << '\n' << (void*)(m_view + i) << ": ";
+            }
+            else {
+                std::cout << (int) m_view[i] << "   ";
+            }
+        }
+    }
+
+    uint8_t& operator[](size_t _Pos) noexcept {
+#if defined (_DEBUG)
+        _STL_VERIFY(_Pos >= 0 && _Pos <= size(), "Out of range access");
+#endif
+        return *(m_view + _Pos);
+    }
+};
+
+typedef struct {
+    void* address;
+    string str;
+    BOOL x32;
+} address_info;
+
+template<typename T>
+auto addressof(T& t) -> address_info {
+    address_info info = {
+        (void*)&t,
+        std::format("{}", (void*) &t)
+    };
+    info.x32 = info.str.size() > 10;
+    return info;
+}
 
 _UTIL_MEMORY_API_END

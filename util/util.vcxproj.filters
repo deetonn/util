@@ -16,6 +16,9 @@
     <Filter Include="Header Files\collections">
       <UniqueIdentifier>{3f1523f4-a738-422f-b6f6-ba6035205bde}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\future">
+      <UniqueIdentifier>{b924d112-a4c8-4656-ae48-9be720265e43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utility.h">
@@ -65,6 +68,18 @@
     </ClInclude>
     <ClInclude Include="bits.hpp">
       <Filter>Header Files\collections</Filter>
+    </ClInclude>
+    <ClInclude Include="vector_future.h">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
+    <ClInclude Include="defer.hpp">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
+    <ClInclude Include="lazy.hpp">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
+    <ClInclude Include="singleton.hpp">
+      <Filter>Header Files\future</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

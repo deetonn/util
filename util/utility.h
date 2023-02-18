@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef _UTL
-#define _UTL ::util::
+#define _UTL ::utl::
 #endif
 #ifndef _NORETURN
 #define _NORETURN [[noreturn]]
@@ -17,6 +17,9 @@
 #include "error.h"
 #include "types.h"
 #include "meta.h"
+#include "defer.hpp"
+#include "lazy.hpp"
+#include "singleton.hpp"
 
 #include "common.h"
 
@@ -52,7 +55,7 @@ auto print(
     const std::_Fmt_string<Types...> _Fmt,
     Types... _Args) -> void
 {
-    util::writeln<Types...>(_Fmt, _Args...);
+    _UTL writeln<Types...>(_Fmt, _Args...);
 }
 
 const std::vector<std::string>& args() 
@@ -75,9 +78,12 @@ size_t argc()
     return args().size();
 }
 
-constexpr std::string const& path()
-  noexcept {
+constexpr auto path()
+  noexcept -> std::string const& {
     return args().front();
 }
 
 _UTIL_API_END
+
+namespace ftd = utl;
+namespace future = ftd::future;

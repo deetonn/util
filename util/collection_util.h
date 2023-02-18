@@ -5,6 +5,11 @@
 
 #include <functional>
 
+#include "traits.h"
+#include "types.h"
+
+#include "vector_future.h"
+
 _UTIL_API
 
 template<class T>
@@ -63,7 +68,7 @@ public:
     }
     size_t empty() const noexcept { return size() == 0; }
 
-    bool at_capacity() const noexcept {
+    BOOL at_capacity() const noexcept {
         return size() == N;
     }
 
@@ -93,8 +98,8 @@ public:
             return self;
         }
 
-        bool operator==(iterator other) const { return this->m_iterator == other.m_iterator; }
-        bool operator!=(iterator other) const { return !(*this == other); }
+        BOOL operator==(iterator other) const { return this->m_iterator == other.m_iterator; }
+        BOOL operator!=(iterator other) const { return !(*this == other); }
 
         _Ty& operator*() { return *m_iterator; }
     };
@@ -117,10 +122,10 @@ public:
 #define _VECTOR_CACHE_SIZE 10
 #endif
 
-#define _ERROR_OOM_() util::panic("failed to allocate enough memory");
+#define _ERROR_OOM_() _UTL panic("failed to allocate enough memory");
 
-template<collection_suitable _Ty>
-class vector {
+template<collection_suitable _Ty, typename _Alloc = _UTL default_allocator>
+class [[deprecated("use future::vector")]] vector {
 private:
     _Ty* m_elements{ nullptr };
     size_t m_element_count{ 0 };
@@ -129,12 +134,12 @@ private:
     stack<size_t, _VECTOR_CACHE_SIZE> m_cache{};
 
     _Ty m_default = {};
+    _Alloc _Al{};
 public:
     vector()
         : m_total_allocated_nodes(_VECTOR_INITIAL_SIZE)
     {
-        m_elements
-            = static_cast<_Ty*>(_STD calloc(_VECTOR_INITIAL_SIZE, sizeof(_Ty)));
+        m_elements = _Al.alloc_many<_Ty>(8);
         /*m_element_count = 0*/
 
         if (!m_elements) {
@@ -160,7 +165,7 @@ public:
 
     ~vector() {
         // RtlValidateHeap fails here, memory is corrupted sometime before this point.
-        _STD free(m_elements);
+        _Al.destroy(this->m_elements);
     }
 
     void push_back(_Ty&& _Value) {
@@ -195,12 +200,12 @@ public:
             return _STD move(_Ty());
         if (m_cache.at_capacity()) {
             /* shifting the array down would invalidate the cache...*/
-            util::panic("cannot shift the array down while at capacity");
+            _UTL panic("cannot shift the array down while at capacity");
         }
 
         auto _Result = m_cache.push(_Position);
         if (_Result != Ok) {
-            util::panic("not enough space to save position");
+            _UTL panic("not enough space to save position");
         }
         return _STD move(this->at_mut(_Position));
     }
@@ -259,10 +264,10 @@ public:
             return self;
         }
 
-        bool operator <(iterator const& other) {
+        BOOL operator <(iterator const& other) {
             return m_iterator < other.m_iterator;
         }
-        bool operator >(iterator const& other) {
+        BOOL operator >(iterator const& other) {
             return !(*this < other);
         }
 
@@ -272,8 +277,8 @@ public:
 
         //auto operator <=>(iterator const&) = default;
 
-        bool operator==(iterator other) const { return this->m_iterator == other.m_iterator; }
-        bool operator!=(iterator other) const { return !(*this == other); }
+        BOOL operator==(iterator other) const { return this->m_iterator == other.m_iterator; }
+        BOOL operator!=(iterator other) const { return !(*this == other); }
 
         _Ty& operator*() { return *m_iterator; }
     };
@@ -313,56 +318,8 @@ private:
     }
 };
 
-template<typename _Ty>
-using predicate = std::function<bool(_Ty const&)>;
-
-// TODO: implement for util::vector
-template<typename _Ty>
-bool any(std::vector<_Ty> const& vec, predicate<_Ty> pred) {
-    for (const auto& _Element : pred) {
-        if (pred(_Element)) {
-            return true;
-        }
-    }
-    return false;
-}
-
-template<typename _Ty>
-std::vector<_Ty> filter(std::vector<_Ty> const& vec, predicate<_Ty> pred) {
-    std::vector<_Ty> _Vec = {};
-    for (const auto& _Element : vec) {
-        if (pred(_Element)) {
-            _Vec.push_back(_Element);
-        }
-    }
-    return _Vec;
-}
-
-template<typename _Ty>
-using mutator = std::function<_Ty(_Ty const&)>;
-
-template<typename _Ty>
-vector<_Ty> map(vector<_Ty>& original, mutator<_Ty> mapper) {
-    vector<_Ty> _Vec = {};
-    for (const auto& _Element : original) {
-        auto mutated = mapper(_Element);
-        _Vec.push_back(mutated);
-    }
-    return _Vec;
-}
-
-template<typename _Ty>
-std::vector<_Ty> map(std::vector<_Ty> const& original, mutator<_Ty> mapper) {
-    std::vector<_Ty> _Vec = {};
-    for (const auto& _Element : original) {
-        auto mutated = mapper(_Element);
-        _Vec.push_back(mutated);
-    }
-    return _Vec;
-}
-
 void display(auto& iterable) {
-    std::cout << "[";
+    std::cout << "Vector(" << iterable.size() << ") [";
     auto end = std::end(iterable);
     for (auto start = std::begin(iterable);
         start < end;
@@ -383,12 +340,12 @@ _UTIL_API_END
 
 namespace std {
     template<typename _Ty>
-    util::vector<_Ty>::iterator begin(util::vector<_Ty>& vec) {
+    typename utl::future::vector<_Ty>::iterator begin(_UTL future::vector<_Ty>& vec) {
         return vec.begin();
     }
 
     template<typename _Ty>
-    util::vector<_Ty>::iterator end(util::vector<_Ty>& vec) {
+    typename _UTL future::vector<_Ty>::iterator end(_UTL future::vector<_Ty>& vec) {
         return vec.end();
     }
 }

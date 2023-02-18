@@ -37,14 +37,14 @@ public:
     _IMPLICIT ErrorOr(Error&& _Problem) {
         m_problem = static_cast<Error*>(_STD malloc(sizeof(Error)));
         if (!m_problem) {
-            util::panic("cannot allocate for ErrorOr due to lack of memory.");
+            _UTL panic("cannot allocate for ErrorOr due to lack of memory.");
         }
         *m_problem = _STD move(_Problem);
     }
     _IMPLICIT ErrorOr(T&& _Value) {
         m_value = static_cast<T*>(_STD malloc(sizeof(T)));
         if (!m_value) {
-            util::panic("cannot allocate for ErrorOr due to lack of memory.");
+            _UTL panic("cannot allocate for ErrorOr due to lack of memory.");
         }
         *m_value = _STD move(_Value);
     }
@@ -69,10 +69,10 @@ public:
         return *m_problem;
     }
 
-    bool has_value() {
+    BOOL has_value() {
         return m_value != nullptr;
     }
-    bool has_problem() {
+    BOOL has_problem() {
         return m_problem != nullptr;
     }
 };
@@ -123,10 +123,10 @@ public:
         delete tee;
         return _STD move(copy);
     }
-    _NODISCARD bool has_value() const noexcept {
+    _NODISCARD BOOL has_value() const noexcept {
         return (tee != nullptr);
     }
-    _NODISCARD bool is_empty() const noexcept {
+    _NODISCARD BOOL is_empty() const noexcept {
         return !has_value();
     }
 };

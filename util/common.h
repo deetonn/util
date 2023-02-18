@@ -1,11 +1,15 @@
 #pragma once
 
 #ifndef _UTIL_API
-#define _UTIL_API namespace util {
+#define _UTIL_API namespace utl {
 #endif
 
 #ifndef _UTIL_API_END
 #define _UTIL_API_END }
+#endif
+
+#ifndef _UTIL_EXPERIMENTAL
+#define _UTIL_EXPERIMENTAL namespace utl::future {
 #endif
 
 #ifndef _W
@@ -17,7 +21,7 @@
 #endif
 
 #ifndef _CONSTEXPR
-#define _CONSTEXPR constexpr
+#define _CONSTEXPR inline constexpr
 #endif
 
 #include <string>
@@ -26,6 +30,8 @@
 #include <iostream>
 
 #include "io_util.h"
+#include "types.h"
+
 #include <stacktrace>
 
 #ifndef _NORETURN
@@ -40,7 +46,12 @@ _UTIL_API
 */
 
 template<typename _Void = std::void_t<void>>
-_NORETURN inline auto panic(const char* message) -> _Void {
+_NORETURN constexpr inline auto panic(const char* message) -> _Void {
+    if (std::is_constant_evaluated()) {
+        // constant eval context requires exceptions
+        throw std::exception(message);
+    }
+
     auto _Ostr = _UTL __io_func(STDERR);
     __assume(_Ostr != nullptr);
     __assume(message != nullptr);
@@ -86,18 +97,18 @@ _NORETURN inline auto panic(const char* message) -> _Void {
 }
 
 template<typename _Void = std::void_t<void>>
-_NORETURN inline auto panic_if(bool _Cond, const char* _Msg) -> _Void {
+_NORETURN constexpr inline auto panic_if(BOOL _Cond, const char* _Msg) -> _Void {
     if (_Cond)
-        _UTL panic(_Msg);
+        _UTL panic<_Void>(_Msg);
 }
 
 template<typename _Void = std::void_t<void, size_t>>
-_NORETURN inline auto panic_if_not(bool _Cond, const char* _Msg) -> _Void {
+_NORETURN constexpr inline auto panic_if_not(BOOL _Cond, const char* _Msg) -> _Void {
     if (!_Cond)
-        _UTL panic(_Msg);
+        _UTL panic<_Void>(_Msg);
 }
 
-_NORETURN auto quit() -> decltype(auto) {
+_NORETURN constexpr auto quit() -> decltype(auto) {
     _UTL panic("quit() was called");
 }
 

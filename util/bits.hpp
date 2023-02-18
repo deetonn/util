@@ -1,87 +1,78 @@
 
 #include "common.h"
 
+#define _VERIFY_BIT_POS(p, m) _STL_VERIFY(p <= m && 0 <= m, "out of range")
+
 _UTIL_API
 
-inline static constexpr ptrdiff_t _Diff =
-#if defined (X64)
-8;
-#else
-4;
-#endif
-
-inline static constexpr ptrdiff_t _SizeT_size =
-#if defined (X64)
-64;
-#else
-32;
-#endif
-
-class _Bit_Field_Proxy {
+template<class _Ty>
+class _Bit_Field_proxy {
 private:
-    uint8_t* _Bit_Proxy{ nullptr };
-    ptrdiff_t _Bit_Loc{ 0 };
+    _Ty* _Bitfield{ nullptr };
+    size_t _Pos{ 0 };
 public:
-    _Bit_Field_Proxy(uint8_t* _Byte, ptrdiff_t const& _Diff) {
-        _Bit_Proxy = _Byte;
-        _Bit_Loc = _Diff * ::util::_Diff;
+    using flag_type = typename _Ty::flag_type;
+    using self = _Bit_Field_proxy<_Ty>;
+
+    _CONSTEXPR _Bit_Field_proxy(_Ty& _Bf, size_t _Pos) {
+        _Bitfield = &_Bf;
+        this->_Pos = _Pos;
     }
 
-    bool is_set() const noexcept { 
-        return (*(_Bit_Proxy) << _Bit_Loc) & 1; 
+    _CONSTEXPR typename flag_type value() const noexcept {
+#if defined (_DEBUG)
+        _STL_VERIFY(_Bitfield != nullptr, "dead proxy");
+#endif
+        auto& _Fl = _Bitfield->_mainf();
+        return static_cast<flag_type>(_Fl & _Pos);
     }
 
-    void set() noexcept {
-        auto& _Proxy = *_Bit_Proxy;
-        _Proxy |= (1 << _Bit_Loc);
+    _CONSTEXPR self& operator=(const flag_type& _Fl) {
+        this->_Bitfield->set_at(this->_Pos, _Fl);
+        return *this;
     }
 };
 
-class bit_field {
+/// <summary>
+/// A bitfield using a 64-bit integer as its bit field.
+/// </summary>
+class bit_field64 {
 private:
-    uint8_t* m_bits{ nullptr };
-    size_t m_capacity{ NULL };
-    size_t m_real_bytecount{ 0 };
+    uint64_t m_Bits{ 0 };
+    uint8_t m_Pos{ 0 };
+
 public:
     using difference = ptrdiff_t;
+    using flag_type = BOOL;
+    using proxy = _Bit_Field_proxy<bit_field64>;
 
-    constexpr bit_field(size_t _Capacity) noexcept {
-        if (!(_Capacity % _Diff == 0)) {
-            panic("capacity is unaligned");
-        }
-
-        m_capacity = _Capacity;
-        m_real_bytecount = (_Capacity / _Diff);
-        m_bits = new uint8_t[m_real_bytecount];
+    _CONSTEXPR auto set_at(difference const& _Pos, flag_type const& _Flag) {
+#if defined (_DEBUG)
+        _STL_VERIFY(64 >= _Pos && 0 <= _Pos, "position is out of range");
+#endif
+        m_Bits |=
+            (static_cast<unsigned long long>(1) << _Pos);
     }
 
-    virtual ~bit_field() noexcept {
-        delete m_bits;
+    _CONSTEXPR auto set_next(BOOL _Fl) noexcept {
+        m_Bits |= 
+            (static_cast<uint64_t>(_Fl) << 
+                (m_Pos == 64 ? 64 : ++m_Pos));
     }
 
-    difference count() const noexcept {
-        return m_real_bytecount * _Diff;
+    _CONSTEXPR proxy at(const size_t& _Pos) {
+#if defined (_DEBUG)
+        _VERIFY_BIT_POS(_Pos, this->capacity());
+#endif
+        return proxy{ *this, static_cast<size_t>(_Pos) };
     }
 
-    _Bit_Field_Proxy at(difference const& index) {
-        const auto size = count();
-        if (index < 0 || index > size) {
-            panic("out of range index access inside a bit_field");
-        }
-        auto Bit_Spot = (index * _Diff);
-        auto* Bit = &m_bits[index / _Diff];
-        return { Bit, Bit_Spot };
+    _CONSTEXPR size_t capacity() const noexcept {
+        return 64;
     }
 
-    void set(difference const& index) {
-        const auto _Size = count();
-        if (index < 0 || index > _Size) {
-            panic("out of range index access inside a bit_field");
-        }
-        auto _Bit_Spot = (index * _Diff);
-        auto* _Bit = &m_bits[index / _Diff];
-        auto _Proxy = _Bit_Field_Proxy{ _Bit, _Bit_Spot };
-        _Proxy.set();
+    uint64_t& _mainf() {
+        return m_Bits;
     }
 };
 

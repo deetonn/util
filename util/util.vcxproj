@@ -132,19 +132,23 @@
     <ClInclude Include="bits.hpp" />
     <ClInclude Include="collection_util.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="defer.hpp" />
     <ClInclude Include="dict.hpp" />
     <ClInclude Include="error.h" />
     <ClInclude Include="hex_conversion.h" />
     <ClInclude Include="integral_util.h" />
     <ClInclude Include="io_util.h" />
+    <ClInclude Include="lazy.hpp" />
     <ClInclude Include="limits.h" />
     <ClInclude Include="memory_util.h" />
     <ClInclude Include="meta.h" />
+    <ClInclude Include="singleton.hpp" />
     <ClInclude Include="string_util.h" />
     <ClInclude Include="traits.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="type_info.h" />
     <ClInclude Include="utility.h" />
+    <ClInclude Include="vector_future.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

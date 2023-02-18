@@ -1,9 +1,11 @@
 #include "utility.h"
 
-using namespace util::typedefs;
+#include "vector_future.h"
+
+using namespace utl::typedefs;
 using namespace std::chrono_literals;
 
-int main()
+int main(int argc, char** argv)
 {
-    util::print("{}", sizeof util::RandT);
+
 }

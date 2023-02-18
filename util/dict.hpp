@@ -122,11 +122,11 @@ public:
         return m_count;
     }
 
-    bool contains(_Key const& key) {
+    BOOL contains(_Key const& key) {
         auto _Hash = this->hash_item(key);
         return m_nodes[_Hash] != nullptr;
     }
-    bool contains(size_t hash) {
+    BOOL contains(size_t hash) {
         if (hash < 0 || hash > m_total_nodes)
             return false;
         return m_nodes[hash] != nullptr;
@@ -162,10 +162,10 @@ public:
             return self;
         }
 
-        bool operator <(iterator const& other) {
+        BOOL operator <(iterator const& other) {
             return m_iterator <= other.m_iterator;
         }
-        bool operator >(iterator const& other) {
+        BOOL operator >(iterator const& other) {
             return !(*this < other);
         }
 
@@ -175,8 +175,8 @@ public:
 
         //auto operator <=>(iterator const&) = default;
 
-        bool operator==(iterator other) const { return this->m_iterator == other.m_iterator; }
-        bool operator!=(iterator other) const { return !(*this == other); }
+        BOOL operator==(iterator other) const { return this->m_iterator == other.m_iterator; }
+        BOOL operator!=(iterator other) const { return !(*this == other); }
 
         value_type operator*() { 
             auto& _Actual = *(*m_iterator);

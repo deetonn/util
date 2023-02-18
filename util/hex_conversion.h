@@ -8,12 +8,12 @@ _UTIL_API
 
 typedef struct {
     char _Chars[8];
-    bool _IsTrailing;
+    BOOL _IsTrailing;
 } _x86_Hex;
 
 typedef struct {
     char _Chars[16];
-    bool _IsTrailing;
+    BOOL _IsTrailing;
 } _x64_Hex;
 
 #if defined X32
@@ -67,7 +67,6 @@ inline auto disect_string_for_hex_contents(const char* text)
     auto remainder = 0U;
 
     HEX_ASSERT(length > 2 && "Invalid hex string");
-
     HEX_ASSERT(text[0] == '0' && (text[1] == 'x' || text[1] == 'X'));
 
     // Start at the character after '0x'
