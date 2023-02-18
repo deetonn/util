@@ -68,6 +68,39 @@ public:
     }
 };
 
+template<typename F, typename ...Types>
+class variadic_defer_context_caller<3, F, Types...> {
+public:
+    auto call(F& _Fn, std::tuple<Types...> _Ag) {
+        _Fn(std::get<0>(_Ag),
+            std::get<1>(_Ag),
+            std::get<2>(_Ag));
+    }
+};
+
+template<typename F, typename ...Types>
+class variadic_defer_context_caller<4, F, Types...> {
+public:
+    auto call(F& _Fn, std::tuple<Types...> _Ag) {
+        _Fn(std::get<0>(_Ag),
+            std::get<1>(_Ag),
+            std::get<2>(_Ag),
+            std::get<3>(_Ag));
+    }
+};
+
+template<typename F, typename ...Types>
+class variadic_defer_context_caller<5, F, Types...> {
+public:
+    auto call(F& _Fn, std::tuple<Types...> _Ag) {
+        _Fn(std::get<0>(_Ag),
+            std::get<1>(_Ag),
+            std::get<2>(_Ag),
+            std::get<3>(_Ag),
+            std::get<4>(_Ag));
+    }
+};
+
 template<typename F, class ...Args>
 class singular_variadic_defer_context {
 private:
