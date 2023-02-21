@@ -109,13 +109,13 @@ public:
     /// Get the value and release the memory containing it.
     /// </summary>
     /// <returns></returns>
-    _NODISCARD T&& unwrap() noexcept {
+    FTD_NODISCARD T&& unwrap() noexcept {
         assert(this->tee != nullptr && "cannot unwrap `maybe` with no value");
         T copy = *tee;
         delete tee;
         return _STD move(copy);
     }
-    _NODISCARD T unwrap_or(T const& _Other) noexcept {
+    FTD_NODISCARD T unwrap_or(T const& _Other) noexcept {
         if (!this->tee) {
             return _Other;
         }
@@ -123,10 +123,10 @@ public:
         delete tee;
         return _STD move(copy);
     }
-    _NODISCARD BOOL has_value() const noexcept {
+    FTD_NODISCARD BOOL has_value() const noexcept {
         return (tee != nullptr);
     }
-    _NODISCARD BOOL is_empty() const noexcept {
+    FTD_NODISCARD BOOL is_empty() const noexcept {
         return !has_value();
     }
 };

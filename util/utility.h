@@ -3,8 +3,13 @@
 #ifndef _UTL
 #define _UTL ::utl::
 #endif
-#ifndef _NORETURN
-#define _NORETURN [[noreturn]]
+
+#ifndef _FTD
+#define _FTD ftd::
+#endif
+
+#ifndef FTD_NORETURN
+#define FTD_NORETURN [[noreturn]]
 #endif
 
 #ifndef __FTD
@@ -46,7 +51,7 @@ _UTIL_API
 
 using namespace std::chrono_literals;
 
-_CONSTEXPR double __version() {
+FTD_CONSTEXPR double __version() {
     return 0.1;
 }
 

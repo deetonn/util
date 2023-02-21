@@ -3,7 +3,6 @@
 #define _UTIL_MEMORY_API_BEGIN _UTIL_API
 #define _UTIL_MEMORY_API_END _UTIL_API_END
 
-#define _NODISCARD [[nodiscard]]
 #define _SAFEPTR_NODISCARD [[nodiscard("discarding the return value will instantly free the allocated memory and renders the call pointless")]]
 #define _ALLOC_NODISCARD [[nodiscard("the function allocates and gives ownership, discarding this value is a memory leak")]]
 
@@ -191,7 +190,7 @@ public:
         m_view = reinterpret_cast<uint8_t*>(&_Mref);
     }
 
-    _CONSTEXPR size_t size() const noexcept(true) {
+    FTD_CONSTEXPR size_t size() const noexcept(true) {
         return sizeof T;
     }
 

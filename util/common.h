@@ -20,8 +20,12 @@
 #define _IMPLICIT
 #endif
 
-#ifndef _CONSTEXPR
-#define _CONSTEXPR inline constexpr
+#ifndef FTD_CONSTEXPR
+#define FTD_CONSTEXPR inline constexpr
+#endif
+
+#ifndef FTD_NODISCARD
+#define FTD_NODISCARD [[nodiscard]]
 #endif
 
 #include <string>
@@ -34,7 +38,7 @@
 
 #include <stacktrace>
 
-#ifndef _NORETURN
+#ifndef FTD_NORETURN
 #define _NORETURN [[noreturn]]
 #endif
 
@@ -46,7 +50,7 @@ _UTIL_API
 */
 
 template<typename _Void = std::void_t<void>>
-_NORETURN constexpr inline auto panic(const char* message) -> _Void {
+FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
     if (std::is_constant_evaluated()) {
         // constant eval context requires exceptions
         throw std::exception(message);
@@ -97,18 +101,18 @@ _NORETURN constexpr inline auto panic(const char* message) -> _Void {
 }
 
 template<typename _Void = std::void_t<void>>
-_NORETURN constexpr inline auto panic_if(BOOL _Cond, const char* _Msg) -> _Void {
+FTD_NORETURN constexpr inline auto panic_if(BOOL _Cond, const char* _Msg) -> _Void {
     if (_Cond)
         _UTL panic<_Void>(_Msg);
 }
 
 template<typename _Void = std::void_t<void, size_t>>
-_NORETURN constexpr inline auto panic_if_not(BOOL _Cond, const char* _Msg) -> _Void {
+FTD_NORETURN constexpr inline auto panic_if_not(BOOL _Cond, const char* _Msg) -> _Void {
     if (!_Cond)
         _UTL panic<_Void>(_Msg);
 }
 
-_NORETURN constexpr auto quit() -> decltype(auto) {
+FTD_NORETURN constexpr auto quit() -> decltype(auto) {
     _UTL panic("quit() was called");
 }
 

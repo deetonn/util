@@ -14,12 +14,12 @@ public:
     using flag_type = typename _Ty::flag_type;
     using self = _Bit_Field_proxy<_Ty>;
 
-    _CONSTEXPR _Bit_Field_proxy(_Ty& _Bf, size_t _Pos) {
+    FTD_CONSTEXPR _Bit_Field_proxy(_Ty& _Bf, size_t _Pos) {
         _Bitfield = &_Bf;
         this->_Pos = _Pos;
     }
 
-    _CONSTEXPR typename flag_type value() const noexcept {
+    FTD_CONSTEXPR typename flag_type value() const noexcept {
 #if defined (_DEBUG)
         _STL_VERIFY(_Bitfield != nullptr, "dead proxy");
 #endif
@@ -27,7 +27,7 @@ public:
         return static_cast<flag_type>(_Fl & _Pos);
     }
 
-    _CONSTEXPR self& operator=(const flag_type& _Fl) {
+    FTD_CONSTEXPR self& operator=(const flag_type& _Fl) {
         this->_Bitfield->set_at(this->_Pos, _Fl);
         return *this;
     }
@@ -46,7 +46,7 @@ public:
     using flag_type = BOOL;
     using proxy = _Bit_Field_proxy<bit_field64>;
 
-    _CONSTEXPR auto set_at(difference const& _Pos, flag_type const& _Flag) {
+    FTD_CONSTEXPR auto set_at(difference const& _Pos, flag_type const& _Flag) {
 #if defined (_DEBUG)
         _STL_VERIFY(64 >= _Pos && 0 <= _Pos, "position is out of range");
 #endif
@@ -54,20 +54,20 @@ public:
             (static_cast<unsigned long long>(1) << _Pos);
     }
 
-    _CONSTEXPR auto set_next(BOOL _Fl) noexcept {
+    FTD_CONSTEXPR auto set_next(BOOL _Fl) noexcept {
         m_Bits |= 
             (static_cast<uint64_t>(_Fl) << 
                 (m_Pos == 64 ? 64 : ++m_Pos));
     }
 
-    _CONSTEXPR proxy at(const size_t& _Pos) {
+    FTD_CONSTEXPR proxy at(const size_t& _Pos) {
 #if defined (_DEBUG)
         _VERIFY_BIT_POS(_Pos, this->capacity());
 #endif
         return proxy{ *this, static_cast<size_t>(_Pos) };
     }
 
-    _CONSTEXPR size_t capacity() const noexcept {
+    FTD_CONSTEXPR size_t capacity() const noexcept {
         return 64;
     }
 
