@@ -28,6 +28,9 @@
 #include "defer.hpp"
 #include "lazy.hpp"
 #include "singleton.hpp"
+#include "function.hpp"
+#include "option.hpp"
+#include "lexing.hpp"
 
 #include "common.h"
 
@@ -90,6 +93,32 @@ constexpr auto path()
   noexcept -> std::string const& {
     return args().front();
 }
+
+constexpr auto check_version() -> bool {
+    constexpr auto baseline_lambda =
+        [&]() {};
+    constexpr auto basic_defer_size = 
+        sizeof(singular_defer_context<decltype(baseline_lambda)>);
+
+    if constexpr (basic_defer_size != 1) {
+        throw std::exception("defer size mismatch!");
+    }
+
+    constexpr auto variadic_lambda
+        = [&](size_t, size_t) {};
+
+    constexpr auto variadic_defer_size =
+        sizeof(singular_variadic_defer_context
+            <decltype(variadic_lambda), int, int>);
+
+    if constexpr (variadic_defer_size != 12) {
+        throw std::exception("variadic defer size mismatch!");
+    }
+
+    return true;
+}
+
+#define FTD_CHECKVERSION() constexpr auto _$$Vcheck = ftd::check_version()
 
 _UTIL_API_END
 

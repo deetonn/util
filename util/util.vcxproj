@@ -135,13 +135,16 @@
     <ClInclude Include="defer.hpp" />
     <ClInclude Include="dict.hpp" />
     <ClInclude Include="error.h" />
+    <ClInclude Include="function.hpp" />
     <ClInclude Include="hex_conversion.h" />
     <ClInclude Include="integral_util.h" />
     <ClInclude Include="io_util.h" />
     <ClInclude Include="lazy.hpp" />
+    <ClInclude Include="lexing.hpp" />
     <ClInclude Include="limits.h" />
     <ClInclude Include="memory_util.h" />
     <ClInclude Include="meta.h" />
+    <ClInclude Include="option.hpp" />
     <ClInclude Include="singleton.hpp" />
     <ClInclude Include="string_util.h" />
     <ClInclude Include="traits.h" />

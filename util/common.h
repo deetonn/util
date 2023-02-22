@@ -100,6 +100,15 @@ FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
     std::unreachable();
 }
 
+template<class... Types>
+FTD_NORETURN constexpr inline auto vpanic(
+    const std::_Fmt_string<Types...> _Fmt,
+    Types... Args) 
+{
+    auto fmt = std::format(_Fmt, Args...);
+    panic(fmt.c_str());
+}
+
 template<typename _Void = std::void_t<void>>
 FTD_NORETURN constexpr inline auto panic_if(BOOL _Cond, const char* _Msg) -> _Void {
     if (_Cond)

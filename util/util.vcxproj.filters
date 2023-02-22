@@ -81,6 +81,15 @@
     <ClInclude Include="singleton.hpp">
       <Filter>Header Files\future</Filter>
     </ClInclude>
+    <ClInclude Include="function.hpp">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
+    <ClInclude Include="option.hpp">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
+    <ClInclude Include="lexing.hpp">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

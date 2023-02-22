@@ -42,7 +42,7 @@ private:
     F f;
 public:
     constexpr singular_defer_context(F f) : f(f) {}
-    ~singular_defer_context() { f(); }
+    constexpr ~singular_defer_context() { f(); }
 
     constexpr auto deferable() const noexcept { return true; }
     constexpr F& instance() noexcept { return f; }
@@ -74,12 +74,6 @@ template<typename F, typename ...Types>
 class variadic_defer_context_caller<3, F, Types...> {
 public:
     auto call(F& _Fn, std::tuple<Types...> _Ag) {
-        _Fn(std::get<0>(_Ag),
-            std::get<1>(_Ag),
-            std::get<2>(_Ag));
-    }
-
-    auto call_pointer(F* _Fn, std::tuple<Types...> _Ag) {
         _Fn(std::get<0>(_Ag),
             std::get<1>(_Ag),
             std::get<2>(_Ag));
@@ -136,7 +130,7 @@ public:
         auto caller = this->create_caller();
         
         if constexpr (std::is_pointer<F>::value) {
-            caller.call_pointer(__Func, __Args);
+            caller.call_pointer(&__Func, __Args);
         }
         else {
             caller.call(__Func, __Args);
@@ -153,13 +147,11 @@ public:
         return __Func;
     }
 
-    FTD_CONSTEXPR specialization create_caller() const noexcept {
+    static 
+        FTD_CONSTEXPR specialization create_caller() noexcept {
         return {};
     }
 };
-
-#define defer(c) auto STRING_JOIN(_$$DfrCon_, __LINE__) = _UTL future::singular_defer_context {[&]{c;}}
-#define defer_with_access(n, c) auto n = _UTL future::singular_defer_context{[&]{c;}}
 
 template<typename F>
 FTD_NODISCARD
@@ -178,5 +170,13 @@ make_defer_context(const F& _Fty, Args&&... _Args)
 -> singular_variadic_defer_context<F, Args...> {
     return svdc<F, Args...>(_Fty, std::move(_Args)...);
 }
+
+template<class F>
+using defer_t = singular_defer_context<F>;
+
+#define defer(c) auto STRING_JOIN(__0_defer, __LINE__) = ftd::singular_defer_context {[&]{c;}}
+
+template<class F, class ...Args>
+using variadic_defer_t = singular_variadic_defer_context<F, Args...>;
 
 _UTIL_API_END
