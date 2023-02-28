@@ -41,6 +41,11 @@ public:
     }
 };
 
+template<class T>
+auto unwrap_optional(optional<T>& opt) -> T {
+    return opt.unwrap();
+}
+
 template<typename T>
 auto unwrap_or_panic(optional<T> _Opt) -> T {
     if (_Opt.has_value()) {

@@ -3,6 +3,7 @@
 #include "common.h"
 
 #include <cassert>
+#include <format>
 
 _UTIL_API
 
@@ -25,6 +26,14 @@ public:
 
 inline auto make_error(const char* _Msg) noexcept -> Error {
     return Error::from(_Msg);
+}
+
+template<class... Types>
+inline auto make_formatted_error(std::_Fmt_string<Types...> _Fmt,
+    Types... _Args) -> Error 
+{
+    auto _F = std::format(_Fmt, _Args...);
+    return Error::from(_F);
 }
 
 template<typename T>

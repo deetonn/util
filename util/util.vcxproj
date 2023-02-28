@@ -129,9 +129,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="array.hpp" />
     <ClInclude Include="bits.hpp" />
     <ClInclude Include="collection_util.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="context.hpp" />
     <ClInclude Include="defer.hpp" />
     <ClInclude Include="dict.hpp" />
     <ClInclude Include="error.h" />

@@ -19,3 +19,5 @@
 #define _NORETURN [[noreturn]]
 #define NODISCARD_LAZY [[nodiscard("you should not discard a lazy instance as its a waste of cpu-time")]]
 #define FTD_NODISCARD [[nodiscard]]
+#define FTD_NORETURN [[noreturn]]
+#define FTD_CONSTEXPR

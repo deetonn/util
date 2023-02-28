@@ -31,6 +31,8 @@
 #include "function.hpp"
 #include "option.hpp"
 #include "lexing.hpp"
+#include "context.hpp"
+#include "array.hpp"
 
 #include "common.h"
 
@@ -64,7 +66,7 @@ inline U declval() {}
 template<typename... Types>
 auto print(
     const std::_Fmt_string<Types...> _Fmt,
-    Types... _Args) -> void
+    Types&&... _Args) -> void
 {
     _UTL writeln<Types...>(_Fmt, _Args...);
 }
@@ -119,6 +121,13 @@ constexpr auto check_version() -> bool {
 }
 
 #define FTD_CHECKVERSION() constexpr auto _$$Vcheck = ftd::check_version()
+
+#define FTD_MAIN()                           \
+        auto _Res = ftd_main(ftd::args());   \
+        if (_Res.has_problem()) {            \
+            ftd::panic(_Res.error().what()); \
+        }                                    \
+        return _Res.unwrap();
 
 _UTIL_API_END
 

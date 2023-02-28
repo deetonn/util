@@ -28,6 +28,14 @@
 #define FTD_NODISCARD [[nodiscard]]
 #endif
 
+#ifndef _MyPtr
+#define _MyPtr() *this
+#endif
+
+#ifndef _MyMutPtr
+#define _MyMutPtr() const_cast<std::remove_const_t<decltype(*this)*>(this)
+#endif
+
 #include <string>
 #include <format>
 
@@ -42,6 +50,10 @@
 #define _NORETURN [[noreturn]]
 #endif
 
+#ifndef FTD_CONSTEVAL
+#define FTD_CONSTEVAL __builtin_is_constant_evaluated()
+#endif
+
 _UTIL_API
 
 /*
@@ -51,7 +63,7 @@ _UTIL_API
 
 template<typename _Void = std::void_t<void>>
 FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
-    if (std::is_constant_evaluated()) {
+    if (FTD_CONSTEVAL) {
         // constant eval context requires exceptions
         throw std::exception(message);
     }
@@ -103,10 +115,10 @@ FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
 template<class... Types>
 FTD_NORETURN constexpr inline auto vpanic(
     const std::_Fmt_string<Types...> _Fmt,
-    Types... Args) 
+    Types&&... Args) 
 {
-    auto fmt = std::format(_Fmt, Args...);
-    panic(fmt.c_str());
+    auto fmt = std::format<Types...>(_Fmt, _STD move(Args)...);
+    panic<void>(fmt.c_str());
 }
 
 template<typename _Void = std::void_t<void>>
@@ -124,5 +136,56 @@ FTD_NORETURN constexpr inline auto panic_if_not(BOOL _Cond, const char* _Msg) ->
 FTD_NORETURN constexpr auto quit() -> decltype(auto) {
     _UTL panic("quit() was called");
 }
+
+template<typename T>
+class iterator {
+private:
+    T* _Elems{ nullptr };
+    size_t _Pos{ 0 };
+public:
+    iterator(T* _Elems, size_t const& _Size)
+        : _Elems(_Elems), _Pos(_Size)
+    {}
+
+    using difference_type = uintptr_t;
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
+    using iterator_category = std::forward_iterator_tag;
+
+    iterator<T>& operator ++() {
+        _Elems++, _Pos++;
+        return *this;
+    }
+    iterator<T> operator ++(int) {
+        iterator self = *this;
+        ++(*this);
+        return self;
+    }
+
+    BOOL operator <(iterator<T> const& other) {
+        return _Pos <= other._Pos;
+    }
+    BOOL operator >(iterator<T> const& other) {
+        return !(*this < other);
+    }
+
+    iterator operator +(size_t number) {
+        return { _Elems, _Pos + number };
+    }
+
+    //auto operator <=>(iterator const&) = default;
+
+    BOOL operator==(iterator<T> other) const { return this->_Elems == other._Elems; }
+    BOOL operator!=(iterator<T> other) const { return !(*this == other); }
+
+    reference operator*() {
+        return *_Elems;
+    }
+
+    inline iterator create(T* _Elems, size_t const& _Size) {
+        return iterator(_Elems, _Size);
+    }
+};
 
 _UTIL_API_END

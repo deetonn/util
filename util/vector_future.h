@@ -14,53 +14,6 @@
 
 _UTIL_EXPERIMENTAL
 
-template<typename T>
-class iterator {
-private:
-    T* _Elems{ nullptr };
-    size_t _Pos{ 0 };
-public:
-    iterator(T* _Elems, size_t const& _Size)
-        : _Elems(_Elems), _Pos(_Size)
-    {}
-
-    using difference_type = uintptr_t;
-    using value_type = T;
-    using pointer = T*;
-    using reference = T&;
-    using iterator_category = std::forward_iterator_tag;
-
-    iterator<T>& operator ++() {
-        _Elems++, _Pos++;
-        return *this;
-    }
-    iterator<T> operator ++(int) {
-        iterator self = *this;
-        ++(*this);
-        return self;
-    }
-
-    BOOL operator <(iterator<T> const& other) {
-        return _Pos <= other._Pos;
-    }
-    BOOL operator >(iterator<T> const& other) {
-        return !(*this < other);
-    }
-
-    iterator operator +(size_t number) {
-        return { _Elems, _Pos + number };
-    }
-
-    //auto operator <=>(iterator const&) = default;
-
-    BOOL operator==(iterator<T> other) const { return this->_Elems == other._Elems; }
-    BOOL operator!=(iterator<T> other) const { return !(*this == other); }
-
-    reference operator*() {
-        return *_Elems;
-    }
-};
-
 template<typename T, typename A = _UTL default_allocator>
 class vector {
 public:

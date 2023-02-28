@@ -90,6 +90,12 @@
     <ClInclude Include="lexing.hpp">
       <Filter>Header Files\future</Filter>
     </ClInclude>
+    <ClInclude Include="context.hpp">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
+    <ClInclude Include="array.hpp">
+      <Filter>Header Files\future</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

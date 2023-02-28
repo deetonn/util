@@ -36,4 +36,7 @@ using i64 = long long;
 
 using BOOL = bool;
 
+template<typename T>
+using remove_reference = std::remove_reference<T>;
+
 _UTIL_API_END

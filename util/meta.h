@@ -58,6 +58,7 @@ inline typename RandT::result_type rand(
     static auto _Device = std::random_device{};
     if (!u_Rand) {
         // dont bother freeing this memory, it should always be alive.
+        // not on the stack because sizeof RandT == 5000 ... 
         u_Rand = new RandT{_Device()};
     }
 
