@@ -25,7 +25,7 @@ public:
                 _Def();
             }
             catch (...) {
-                if constexpr (std::is_constant_evaluated()) {
+                if (std::is_constant_evaluated()) {
                     throw;
                 }
             };
