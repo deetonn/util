@@ -8,11 +8,12 @@
 #define DO_STRING_JOIN2(arg1, arg2) arg1 ## arg2
 
 #define DEFER_NODISCARD [[nodiscard("always store the value of a defer context, otherwise the constructor is called instantly")]]
+#define DEFER_DEPRECATED [[deprecated("use defer instead")]]
 
 _UTIL_API
 
 template<typename _Fty>
-class defer_context {
+class DEFER_DEPRECATED defer_context {
 private:
     std::vector<std::function<_Fty()>> _Funcs{};
 public:
