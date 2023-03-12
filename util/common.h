@@ -186,6 +186,10 @@ public:
     inline iterator create(T* _Elems, size_t const& _Size) {
         return iterator(_Elems, _Size);
     }
-};
+}; 
+
+#ifndef FTD_VERIFY
+#define FTD_VERIFY(expr) assert(expr)
+#endif
 
 _UTIL_API_END
