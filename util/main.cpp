@@ -2,16 +2,10 @@
 #include "utility.h"
 #endif
 
-#include <array>
-
-using namespace utl::typedefs;
+using namespace ftd::typedefs;
 using namespace std::chrono_literals;
 
-int main()
+int main(void)
 {
-    auto* name = new std::string("Deeton");
 
-    defer {
-        delete name;
-    };
 }

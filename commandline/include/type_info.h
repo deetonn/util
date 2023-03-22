@@ -9,17 +9,17 @@ _UTIL_API
 template<typename _Ty>
 class type_info {
 public:
-    static inline decltype(typeid(_Ty).name()) name() {
+    static inline const char* name() {
         auto& info = typeid(_Ty);
         return info.name();
     }
 
-    static inline decltype(typeid(_Ty).raw_name()) raw_name() {
+    static inline const char* raw_name() {
         auto& info = typeid(_Ty);
         return info.raw_name();
     }
 
-    static inline decltype(typeid(_Ty).hash_code()) hash_code() {
+    static inline size_t hash_code() {
         auto& info = typeid(_Ty);
         return info.hash_code();
     }

@@ -226,62 +226,8 @@ auto addressof(T& t) -> address_info {
         (void*)&t,
         std::format("{}", (void*) &t)
     };
-    info.x32 = !(info.str.size() > 10);
+    info.x32 = info.str.size() > 10;
     return info;
 }
-
-/* not_null<T> */
-
-template<class T>
-concept NonNullWorthy = !std::is_pointer_v<T>;
-
-template<NonNullWorthy T>
-class non_null {
-private:
-    T m_value;
-public:
-    non_null() = delete;
-    non_null(const T& _Initializer) noexcept
-        : m_value {_Initializer}
-    {}
-    non_null(T&& _Initializer)
-        : m_value{ _STD move(_Initializer) }
-    {}
-
-    T& value() noexcept {
-        return m_value;
-    }
-    const T& value() const noexcept {
-        return m_value;
-    }
-};
-
-template<class T>
-class non_null_ptr {
-private:
-    T* pointer{ nullptr };
-public:
-    non_null_ptr(T* _Ptr) noexcept
-    {
-        FTD_VERIFY(_Ptr != nullptr, "cannot create a non_null_ptr<T> with a nullptr.");
-        this->pointer = _Ptr;
-    }
-    non_null_ptr(const T& _Value)
-    {
-        auto* ptr = new (std::nothrow) T(_Value);
-        FTD_VERIFY(ptr != nullptr, "failed to allocate space for non_null_ptr");
-        this->pointer = ptr;
-    }
-    non_null_ptr(T&& _Move)
-        : non_null_ptr{ _STD move(_Move) }
-    {}
-
-    T* value() noexcept {
-        return this->pointer;
-    }
-    const T* value() const noexcept {
-        return this->pointer;
-    }
-};
 
 _UTIL_MEMORY_API_END

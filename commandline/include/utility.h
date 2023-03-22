@@ -28,16 +28,13 @@
 #include "defer.hpp"
 #include "lazy.hpp"
 #include "singleton.hpp"
-// #include "function.hpp"
+#include "function.hpp"
 #include "option.hpp"
 #include "lexing.hpp"
 #include "context.hpp"
 #include "array.hpp"
 #include "string.hpp"
 #include "span.hpp"
-#include "settings.hpp"
-#include "iterators.hpp"
-// #include "process_list.hpp"
 
 #include "common.h"
 
@@ -48,6 +45,12 @@
 
 #include <algorithm>
 #include <format>
+
+#if !defined(__linux__)
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "hex_conversion.h"
 
@@ -68,6 +71,31 @@ auto print(
     Types&&... _Args) -> void
 {
     _UTL writeln<Types...>(_Fmt, _Args...);
+}
+
+const std::vector<std::string>& args() 
+  noexcept {
+    static std::vector<std::string> _Vec = {};
+    if (_Vec.empty()) {
+        auto& argc = *__p___argc();
+        auto argv = *__p___argv();
+
+        for (auto i = 0; i < argc; ++i) {
+            auto s = std::string{ argv[i] };
+            _Vec.push_back(_STD move(s));
+        }
+    }
+    return _Vec;
+}
+
+size_t argc()
+  noexcept {
+    return args().size();
+}
+
+constexpr auto path()
+  noexcept -> std::string const& {
+    return args().front();
 }
 
 constexpr auto check_version() -> bool {
@@ -107,9 +135,5 @@ _UTIL_API_END
 
 namespace ftd = utl;
 namespace future = ftd::future;
-
-namespace utl {
-    using namespace future;
-}
 
 #endif

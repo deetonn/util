@@ -2,8 +2,6 @@
 
 #include "common.h"
 
-#include "io_util.h"
-
 #include <ranges>
 #include <random>
 
@@ -41,15 +39,13 @@ inline auto RandMt() -> RandT& {
     return *u_Rand;
 }
 
-#define FTD_RANDOM_NODISCARD [[nodiscard("could cause a pointless allocation")]]
-
 /*
 * Returns a random number between _Lower & _Upper.
 * @param _Lower: The lower bound number, must be smaller than _Upper.
 * @param _Upper: The upper bound number, must be larger than _Lower
 * @return: The random number as typename util::RandT::result_type.
 */
-FTD_RANDOM_NODISCARD
+[[nodiscard("could cause a pointless allocation")]]
 inline typename RandT::result_type rand(
     RandT::result_type _Lower = 0,
     RandT::result_type _Upper = -1
@@ -73,7 +69,7 @@ inline typename RandT::result_type rand(
     return dist(_Myref);
 }
 
-FTD_RANDOM_NODISCARD
+[[nodiscard("could cause a pointless allocation")]]
 inline BOOL randb() {
     return static_cast<BOOL>(rand(0, 1));
 }
@@ -82,9 +78,7 @@ std::chrono::microseconds measure(std::function<void()> fn) {
     auto now = std::chrono::high_resolution_clock::now();
     fn();
     auto end = std::chrono::high_resolution_clock::now();
-    auto result = std::chrono::duration_cast<std::chrono::microseconds>(end - now);
-    _UTL writeln("Function {} took {} microseconds to execute", nameof<decltype(fn)>(), result.count());
-    return result;
+    return std::chrono::duration_cast<std::chrono::microseconds>(end - now);
 }
 
 _UTIL_API_END

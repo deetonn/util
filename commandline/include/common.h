@@ -43,11 +43,6 @@
 
 #include "io_util.h"
 #include "types.h"
-// #include <windows.h>
-
-#ifndef FTD_ITERATORS
-#include "iterators.hpp"
-#endif
 
 #include <stacktrace>
 
@@ -114,12 +109,7 @@ FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
         "\n[panic]: %s\n", message
     );
 
-    if constexpr (std::is_same<void, _Void>::value) {
-        std::unreachable();
-    }
-    else {
-        return _Void{};
-    }
+    std::unreachable();
 }
 
 template<class... Types>
@@ -127,7 +117,8 @@ FTD_NORETURN constexpr inline auto vpanic(
     const std::_Fmt_string<Types...> _Fmt,
     Types&&... Args) 
 {
-    panic<void>(std::format<Types...>(_Fmt, _STD move(Args)...).c_str());
+    auto fmt = std::format<Types...>(_Fmt, _STD move(Args)...);
+    panic<void>(fmt.c_str());
 }
 
 template<typename _Void = std::void_t<void>>
@@ -146,40 +137,61 @@ FTD_NORETURN constexpr auto quit() -> decltype(auto) {
     _UTL panic("quit() was called");
 }
 
+template<typename T>
+class iterator {
+private:
+    T* _Elems{ nullptr };
+    size_t _Pos{ 0 };
+public:
+    iterator(T* _Elems, size_t const& _Size)
+        : _Elems(_Elems), _Pos(_Size)
+    {}
+
+    using difference_type = uintptr_t;
+    using value_type = T;
+    using pointer = T*;
+    using reference = T&;
+    using iterator_category = std::forward_iterator_tag;
+
+    iterator<T>& operator ++() {
+        _Elems++, _Pos++;
+        return *this;
+    }
+    iterator<T> operator ++(int) {
+        iterator self = *this;
+        ++(*this);
+        return self;
+    }
+
+    BOOL operator <(iterator<T> const& other) {
+        return _Pos <= other._Pos;
+    }
+    BOOL operator >(iterator<T> const& other) {
+        return !(*this < other);
+    }
+
+    iterator operator +(size_t number) {
+        return { _Elems, _Pos + number };
+    }
+
+    //auto operator <=>(iterator const&) = default;
+
+    BOOL operator==(iterator<T> other) const { return this->_Elems == other._Elems; }
+    BOOL operator!=(iterator<T> other) const { return !(*this == other); }
+
+    reference operator*() {
+        return *_Elems;
+    }
+
+    static inline iterator create(T* _Elems, size_t const& _Size) {
+        return iterator(_Elems, _Size);
+    }
+}; 
+
 #define FTD_ASSERT(expr, message) if (!(expr)) { utl::vpanic("assertion failure! '{}' -- {}", #expr, message); }
 
 #ifndef FTD_VERIFY
 #define FTD_VERIFY(expr, message) FTD_ASSERT(expr, message)
 #endif
 
-const std::vector<std::string>& args()
-noexcept {
-    static std::vector<std::string> _Vec = {};
-    if (_Vec.empty()) {
-        auto& argc = *__p___argc();
-        auto argv = *__p___argv();
-
-        for (auto i = 0; i < argc; ++i) {
-            auto s = std::string{ argv[i] };
-            _Vec.push_back(_STD move(s));
-        }
-    }
-    return _Vec;
-}
-
-size_t argc()
-noexcept {
-    return args().size();
-}
-
-constexpr auto path()
-noexcept -> std::string const& {
-    return args().front();
-}
-
 _UTIL_API_END
-
-#ifndef FTD_SETTINGS_HPP
-#define FTD_SETTINGS_HPP
-#include "settings.hpp"
-#endif

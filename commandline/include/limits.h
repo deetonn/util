@@ -128,21 +128,21 @@ OVERLOAD_LIMIT(unsigned long long) {
 #pragma warning(disable:4244)
 
 OVERLOAD_LIMIT(float) {
-    constexpr static inline auto min() {
+    constexpr static inline size_t min() {
         return 1.17549e-038;
     }
 
-    constexpr static inline auto max() {
+    constexpr static inline size_t max() {
         return 3.40282e+038;
     }
 };
 
 OVERLOAD_LIMIT(double) {
-    constexpr static inline auto min() {
+    constexpr static inline size_t min() {
         return 2.22507e-308;
     }
 
-    constexpr static inline auto max() {
+    constexpr static inline size_t max() {
         return 1.79769e+308;
     }
 };
