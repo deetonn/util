@@ -284,4 +284,9 @@ public:
     }
 };
 
+template<class T>
+inline T bit_cast(void* data) noexcept {
+    return reinterpret_cast<T>(data);
+}
+
 _UTIL_MEMORY_API_END

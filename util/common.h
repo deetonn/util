@@ -1,11 +1,56 @@
 #pragma once
 
+#ifndef _UTIL_COMMON_INTERNAL
+#define _UTIL_COMMON_INTERNAL
+
 #ifndef _UTIL_API
 #define _UTIL_API namespace utl {
 #endif
 
+#ifndef _UTIL_DETAIL
+#define _UTIL_DETAIL namespace utl::detail {
+#endif
+
 #ifndef _UTIL_API_END
 #define _UTIL_API_END }
+#endif
+
+_UTIL_DETAIL
+
+template<class T, class E>
+class Result {
+private:
+    bool _has_value{ false };
+
+    T result{};
+    E err{};
+public:
+    Result() = delete;
+    Result(T&& _Val) noexcept {
+        result = _STD move(_Val);
+        _has_value = true;
+    }
+    Result(E&& _Err) noexcept {
+        err = _STD move(_Err);
+    }
+
+    [[nodiscard]] bool has_value() const noexcept {
+        return _has_value;
+    }
+
+    T value() noexcept {
+        return result;
+    }
+
+    E error() noexcept {
+        return err;
+    }
+};
+
+_UTIL_API_END
+
+#ifndef _DETAIL
+#define _DETAIL utl::detail::
 #endif
 
 #ifndef _UTIL_EXPERIMENTAL
@@ -38,6 +83,7 @@
 
 #include <string>
 #include <format>
+#include <utility>
 
 #include <iostream>
 
@@ -67,7 +113,7 @@ _UTIL_API
 */
 
 template<typename _Void = std::void_t<void>>
-FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
+FTD_NORETURN constexpr inline auto panic(const char* message, size_t _Call = 2) -> _Void {
     if (FTD_CONSTEVAL) {
         // constant eval context requires exceptions
         throw std::exception(message);
@@ -93,19 +139,19 @@ FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
         ++frame, _Position++
         )
     {
-        const auto& _Fr = *frame;
-        if (_Position == stack.size() - 2) {
+        const auto& stack_frame = *frame;
+        if (_Position == stack.size() - _Call) {
             _UTL tfprintf(_Ostr,
                 "%s <-- [panic here at line %zu in file %s]\n",
-                _Fr.description().c_str(),
-                _Fr.source_line(),
-                _Fr.source_file().c_str());
+                stack_frame.description().c_str(),
+                stack_frame.source_line(),
+                stack_frame.source_file().c_str());
         }
         else {
             _UTL tfprintf(_Ostr,
                 "[%zu] %s\n",
-                _Fr.source_line(),
-                _Fr.description().c_str());
+                stack_frame.source_line(),
+                stack_frame.description().c_str());
         }
     }
 
@@ -127,23 +173,23 @@ FTD_NORETURN constexpr inline auto vpanic(
     const std::_Fmt_string<Types...> _Fmt,
     Types&&... Args) 
 {
-    panic<void>(std::format<Types...>(_Fmt, _STD move(Args)...).c_str());
+    panic<void>(std::format<Types...>(_Fmt, _STD move(Args)...).c_str(), 3);
 }
 
 template<typename _Void = std::void_t<void>>
 FTD_NORETURN constexpr inline auto panic_if(BOOL _Cond, const char* _Msg) -> _Void {
     if (_Cond)
-        _UTL panic<_Void>(_Msg);
+        _UTL panic<_Void>(_Msg, 3);
 }
 
 template<typename _Void = std::void_t<void, size_t>>
 FTD_NORETURN constexpr inline auto panic_if_not(BOOL _Cond, const char* _Msg) -> _Void {
     if (!_Cond)
-        _UTL panic<_Void>(_Msg);
+        _UTL panic<_Void>(_Msg, 3);
 }
 
 FTD_NORETURN constexpr auto quit() -> decltype(auto) {
-    _UTL panic("quit() was called");
+    _UTL panic("quit() was called", 3);
 }
 
 #define FTD_ASSERT(expr, message) if (!(expr)) { utl::vpanic("assertion failure! '{}' -- {}", #expr, message); }
@@ -154,17 +200,17 @@ FTD_NORETURN constexpr auto quit() -> decltype(auto) {
 
 const std::vector<std::string>& args()
 noexcept {
-    static std::vector<std::string> _Vec = {};
-    if (_Vec.empty()) {
-        auto& argc = *__p___argc();
+    static std::vector<std::string> arguments = {};
+    if (arguments.empty()) {
+        auto& argc = (unsigned int&)*__p___argc();
         auto argv = *__p___argv();
 
-        for (auto i = 0; i < argc; ++i) {
-            auto s = std::string{ argv[i] };
-            _Vec.push_back(_STD move(s));
+        for (auto i = 0u; i < argc; ++i) {
+            auto current_argument = std::string{ argv[i] };
+            arguments.push_back(_STD move(current_argument));
         }
     }
-    return _Vec;
+    return arguments;
 }
 
 size_t argc()
@@ -177,9 +223,20 @@ noexcept -> std::string const& {
     return args().front();
 }
 
+template<typename ...Types>
+auto outln(
+    std::_Fmt_string<Types...> _Fmt,
+    Types&&... args) noexcept 
+{
+    auto fmt = std::format<Types...>(_Fmt, _STD move(args)...);
+    std::cout << fmt.c_str() << "\n";
+}
+
 _UTIL_API_END
 
 #ifndef FTD_SETTINGS_HPP
 #define FTD_SETTINGS_HPP
 #include "settings.hpp"
 #endif
+
+#endif /*ifndef _UTIL_*/

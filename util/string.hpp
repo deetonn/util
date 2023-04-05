@@ -17,8 +17,11 @@ template<typename alloc = _UTL default_allocator>
 class basic_string {
 public:
     using char_type = char;
+    using value_type = char_type;
     using size_type = size_t;
     using self = basic_string;
+    using iterator = utl::iterator<char_type>;
+    using const_iterator = utl::const_iterator<char_type>;
 
     static inline std::string default_value_key = "ftd::string::default";
 private:
@@ -28,9 +31,16 @@ public:
     basic_string() noexcept {
         auto default_string =
             settings::get_dynamic<std::string>(default_value_key);
-        m_bytes = (default_string == nullptr)
-            ? nullptr
-            : default_string->c_str();
+
+        if (default_string != nullptr) {
+
+            const auto size = default_string->size() + 1;
+            m_bytes = m_alloc.alloc_many<char>(size);
+            FTD_VERIFY(m_bytes != nullptr, "failed to allocate space for string contents");
+            std::memcpy(m_bytes, default_string->c_str(), default_string->size());
+            m_bytes[size - 1] = '\0';
+        }
+        
     }
     basic_string(const basic_string& s)
         : basic_string(s.c_str())
@@ -55,7 +65,9 @@ public:
     }
 
     FTD_CONSTEXPR ~basic_string() {
-        if (m_bytes) m_alloc.destroy(m_bytes);
+        if (m_bytes) {
+            m_alloc.destroy(m_bytes);
+        };
     }
 
     FTD_CONSTEXPR size_t size() const noexcept {
@@ -77,7 +89,7 @@ public:
     }
 
     bool is_empty() const noexcept {
-        return m_bytes == nullptr || m_bytes == "";
+        return m_bytes == nullptr || strcmp(m_bytes, "");
     }
 
     basic_string::self  substr(size_t start, size_t length) const noexcept {
@@ -115,6 +127,33 @@ public:
             return l;
         }
     }
+
+    iterator begin() noexcept {
+        return iterator(
+            m_bytes,
+            size()
+        );
+    }
+    iterator end() noexcept {
+        auto it = iterator(
+            m_bytes + size(),
+            size()
+        );
+        return it;
+    }
+
+    //const_iterator begin() const noexcept {
+    //    return const_iterator(
+    //        m_bytes,
+    //        size()
+    //    );
+    //}
+    //const_iterator begin() const noexcept {
+    //    return const_iterator(
+    //        m_bytes + size(),
+    //        size()
+    //    );
+    //}
 
     basic_string& operator =(const basic_string& s) {
         this->clear();

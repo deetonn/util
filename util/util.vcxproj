@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="algorithms.hpp" />
     <ClInclude Include="array.hpp" />
     <ClInclude Include="bits.hpp" />
     <ClInclude Include="collection_util.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="span.hpp" />
     <ClInclude Include="string.hpp" />
     <ClInclude Include="string_util.h" />
+    <ClInclude Include="thread.hpp" />
     <ClInclude Include="traits.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="type_info.h" />

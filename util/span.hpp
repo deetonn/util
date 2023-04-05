@@ -39,12 +39,33 @@ template<>
 class span<char> {
 private:
     const char* m_bytes;
+    size_t m_length;
 public:
-    span(const std::string& _Std_string) noexcept {
-        m_bytes = _Std_string.c_str();
+    FTD_CONSTEXPR span(const std::string_view _Std_string) noexcept {
+        m_bytes = _Std_string.data();
+        m_length = _Std_string.size();
     }
-    span(const utl::string& _Ftd_string) noexcept {
-        m_bytes = _Ftd_string.c_str();
+    FTD_CONSTEXPR span(const char* _Builtin_string) noexcept {
+        m_bytes = _Builtin_string;
+        m_length = std::char_traits<char>::length(_Builtin_string);
+    }
+
+    FTD_CONSTEXPR const char* data() const noexcept {
+        return m_bytes;
+    }
+    FTD_CONSTEXPR const char& at(size_t _Off) const noexcept {
+        return m_bytes[_Off];
+    }
+
+    FTD_CONSTEXPR const char& front() const noexcept {
+        return m_bytes[0];
+    }
+    FTD_CONSTEXPR const char& back() const noexcept {
+        return m_bytes[m_length - 1];
+    }
+
+    FTD_CONSTEXPR size_t size() const noexcept {
+        return m_length;
     }
 };
 

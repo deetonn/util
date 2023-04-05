@@ -114,6 +114,10 @@ public:
     using specialization = variadic_defer_context_caller<sizeof ...(Args), F, Args...>;
     using return_type = typename std::invoke_result<F, Args...>::type;
 
+    constexpr unsigned char argument_count() const noexcept {
+        return sizeof ...(Args);
+    }
+
     constexpr singular_variadic_defer_context(const F& f, Args&&... _Args)
         : __Func(f) 
     {

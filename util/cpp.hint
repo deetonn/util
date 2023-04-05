@@ -23,3 +23,6 @@
 #define FTD_CONSTEXPR
 #define SETTINGS_DECL
 #define OVERLOAD_LIMIT(x)
+#define FTD_THREAD_API
+#define NODISCARD [[nodiscard]]
+#define _ALGO_NODISCARD _NODISCARD_MSG("Discard the result of this algorithm function will cause an un-needed enumeration. This enumeration can be linear, which is a waste of cpu cycles.")

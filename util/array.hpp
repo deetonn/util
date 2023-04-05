@@ -8,7 +8,12 @@ template<typename T, size_t N>
 class array {
 public:
     using element = T;
+    using value_type = element;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = value_type*;
     using iterator = _UTL iterator<element>;
+    using size_type = size_t;
     using self = array<T, N>;
 private:
     element elements[N]{};
@@ -33,11 +38,11 @@ public:
         }
     }
 
-    FTD_CONSTEXPR element* data() noexcept {
+    FTD_CONSTEXPR pointer data() noexcept {
         return reinterpret_cast<element*>(elements);
     }
 
-    FTD_CONSTEXPR element& at(size_t _Off) noexcept {
+    FTD_CONSTEXPR reference at(size_t _Off) noexcept {
 #if defined (_DEBUG)
         if (_Off > N || 0 > _Off) {
             panic("array sub-script out of range");
@@ -45,28 +50,40 @@ public:
 #endif
         return elements[_Off];
     }
-    FTD_CONSTEXPR element& front() noexcept {
+
+    FTD_CONSTEXPR const_reference at(size_t _Off) const noexcept {
+        return elements[_Off];
+    }
+    FTD_CONSTEXPR _NODISCARD bool empty() const noexcept {
+        // array is always initialized
+        return false;
+    }
+
+    FTD_CONSTEXPR reference front() noexcept {
         return elements[0];
     }
-    FTD_CONSTEXPR element& back() noexcept {
+    FTD_CONSTEXPR reference back() noexcept {
         return elements[size() - 1];
     }
 
-    FTD_CONSTEXPR size_t capacity() const noexcept {
+    FTD_CONSTEXPR _NODISCARD size_t capacity() const noexcept {
         return N;
     }
-    FTD_CONSTEXPR size_t size() const noexcept {
+    FTD_CONSTEXPR _NODISCARD size_t max_size() const noexcept {
+        return capacity();
+    }
+    FTD_CONSTEXPR _NODISCARD size_t size() const noexcept {
         return N;
     }
 
-    FTD_CONSTEXPR element& operator[](size_t _Off) noexcept {
+    FTD_CONSTEXPR reference operator[](size_t _Off) noexcept {
         return _SELF at(_Off);
     }
-    FTD_CONSTEXPR const element& view(size_t _Off) const noexcept {
-        return (*this)[_Off];
+    FTD_CONSTEXPR const_reference view(size_t _Off) const noexcept {
+        return elements[_Off];
     }
 
-    FTD_CONSTEXPR void fill(const T& _Filler) noexcept {
+    FTD_CONSTEXPR void fill(const_reference _Filler) noexcept {
         for (auto i = 0; i < size(); ++i) {
             this->elements[i] = _Filler;
         }

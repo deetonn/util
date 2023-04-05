@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+#include <utility>
+
 _UTIL_API
 
 template<class R, class ...Args>
@@ -14,7 +16,7 @@ public:
 private:
     function_type* _Ff;
 public:
-    function(function_type _Ff) {
+    function(function_type const& _Ff) {
         this->_Ff = new(std::nothrow) function_type(_Ff);
     };
     ~function() {

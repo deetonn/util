@@ -37,6 +37,8 @@
 #include "span.hpp"
 #include "settings.hpp"
 #include "iterators.hpp"
+#include "algorithms.hpp"
+#include "thread.hpp"
 // #include "process_list.hpp"
 
 #include "common.h"

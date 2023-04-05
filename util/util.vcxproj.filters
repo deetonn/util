@@ -114,6 +114,12 @@
     <ClInclude Include="iterators.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="algorithms.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thread.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

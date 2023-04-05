@@ -11,10 +11,10 @@ template<typename T>
 class iterator {
 private:
     T* _Elems{ nullptr };
-    size_t _Pos{ 0 };
+    size_t _Size{ 0 };
 public:
     iterator(T* _Elems, size_t const& _Size)
-        : _Elems(_Elems), _Pos(_Size)
+        : _Elems(_Elems), _Size(_Size)
     {}
 
     using difference_type = uintptr_t;
@@ -24,7 +24,7 @@ public:
     using iterator_category = std::forward_iterator_tag;
 
     iterator<T>& operator ++() {
-        _Elems++, _Pos++;
+        _Elems++;
         return *this;
     }
     iterator<T> operator ++(int) {
@@ -34,14 +34,14 @@ public:
     }
 
     BOOL operator <(iterator<T> const& other) {
-        return _Pos <= other._Pos;
+        return _Elems <= other._Elems;
     }
     BOOL operator >(iterator<T> const& other) {
         return !(*this < other);
     }
 
     iterator operator +(size_t number) {
-        return { _Elems, _Pos + number };
+        return { _Elems, _Size };
     }
 
     //auto operator <=>(iterator const&) = default;
@@ -62,10 +62,10 @@ template<typename T>
 class const_iterator {
 private:
     T* _Elems{ nullptr };
-    size_t _Pos{ 0 };
+    size_t _Size{ 0 };
 public:
     const_iterator(const T* _Elems, size_t _Size)
-        : _Elems(_Elems), _Pos(_Size)
+        : _Elems(_Elems), _Size(_Size)
     {}
 
     using difference_type = uintptr_t;
@@ -75,7 +75,7 @@ public:
     using iterator_category = std::forward_iterator_tag;
 
     const_iterator<T>& operator ++() {
-        _Elems++, _Pos++;
+        _Elems++;
         return *this;
     }
     const_iterator<T> operator ++(int) {
@@ -85,14 +85,14 @@ public:
     }
 
     BOOL operator <(const_iterator<T> const& other) {
-        return _Pos <= other._Pos;
+        return _Elems <= other._Elems;
     }
     BOOL operator >(const_iterator<T> const& other) {
         return !(*this < other);
     }
 
     const_iterator operator +(size_t number) {
-        return { _Elems, _Pos + number };
+        return { _Elems, _Size };
     }
 
     //auto operator <=>(iterator const&) = default;
