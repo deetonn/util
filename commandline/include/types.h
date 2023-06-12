@@ -36,9 +36,6 @@ using i64 = long long;
 
 using BOOL = bool;
 
-template<class T>
-using NativeArray = T*;
-
 template<typename T>
 using remove_reference = std::remove_reference<T>;
 

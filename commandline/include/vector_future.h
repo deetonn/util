@@ -56,19 +56,6 @@ public:
         return _Pos;
     }
 
-    template<class... Args>
-    size_type emplace_back(Args&&... args) noexcept {
-        auto object = T(_STD forward<Args>(args)...);
-        return this->push_back(_STD move(object));
-    }
-
-    const T& at(size_type _Off) const noexcept {
-        return _M_Elems[_Off];
-    }
-    T& at(size_type _Off) noexcept {
-        return _M_Elems[_Off];
-    }
-
     // getters
     size_type size() const noexcept {
         return _SELF _M_Siz;
@@ -79,7 +66,7 @@ public:
 
     // iterator based functions
     typename self::iterator begin() {
-        return iterator{ _M_Elems, size() };
+        return iterator{ _M_Elems, 0 };
     }
     typename self::iterator end() {
         auto _Sz = size();

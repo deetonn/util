@@ -114,10 +114,6 @@ public:
     using specialization = variadic_defer_context_caller<sizeof ...(Args), F, Args...>;
     using return_type = typename std::invoke_result<F, Args...>::type;
 
-    constexpr unsigned char argument_count() const noexcept {
-        return sizeof ...(Args);
-    }
-
     constexpr singular_variadic_defer_context(const F& f, Args&&... _Args)
         : __Func(f) 
     {
@@ -166,7 +162,6 @@ template<class F>
 using defer_t = singular_defer_context<F>;
 
 #define defer ftd::singular_defer_context STRING_JOIN(__0_defer, __LINE__) = [&] 
-#define defer_no_semi(code) ftd::singular_defer_context STRING_JOIN(__0_defer, __LINE__) = [&] code;
 
 template<class F, class ...Args>
 using variadic_defer_t = singular_variadic_defer_context<F, Args...>;

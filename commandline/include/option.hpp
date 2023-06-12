@@ -47,7 +47,7 @@ auto unwrap_optional(optional<T>& opt) -> T {
 }
 
 template<typename T>
-auto unwrap_or_panic(optional<T>& _Opt) -> T {
+auto unwrap_or_panic(optional<T> _Opt) -> T {
     if (_Opt.has_value()) {
         return _Opt.unwrap();
     }

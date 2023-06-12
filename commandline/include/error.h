@@ -29,11 +29,11 @@ inline auto make_error(const char* _Msg) noexcept -> Error {
 }
 
 template<class... Types>
-inline auto make_formatted_error(std::format_string<Types...> _Fmt,
-    Types&&... _Args) -> Error 
+inline auto make_formatted_error(std::_Fmt_string<Types...> _Fmt,
+    Types... _Args) -> Error 
 {
-    std::string _F = std::format<Types...>(_Fmt, _STD move(_Args)...);
-    return Error::from(_F.c_str());
+    auto _F = std::format(_Fmt, _Args...);
+    return Error::from(_F);
 }
 
 template<typename T>
@@ -43,19 +43,19 @@ private:
     Error* m_problem{ nullptr };
     T* m_value{ nullptr };
 public:
-    _IMPLICIT ErrorOr(const Error& _Problem) {
+    _IMPLICIT ErrorOr(Error&& _Problem) {
         m_problem = static_cast<Error*>(_STD malloc(sizeof(Error)));
         if (!m_problem) {
             _UTL panic("cannot allocate for ErrorOr due to lack of memory.");
         }
-        *m_problem = _Problem;
+        *m_problem = _STD move(_Problem);
     }
-    _IMPLICIT ErrorOr(const T& _Value) {
+    _IMPLICIT ErrorOr(T&& _Value) {
         m_value = static_cast<T*>(_STD malloc(sizeof(T)));
         if (!m_value) {
             _UTL panic("cannot allocate for ErrorOr due to lack of memory.");
         }
-        *m_value = _Value;
+        *m_value = _STD move(_Value);
     }
 
     ~ErrorOr() {

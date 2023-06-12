@@ -51,7 +51,7 @@ public:
         _STL_VERIFY(64 >= _Pos && 0 <= _Pos, "position is out of range");
 #endif
         m_Bits |=
-            (static_cast<size_t>(1) << _Pos);
+            (static_cast<unsigned long long>(1) << _Pos);
     }
 
     FTD_CONSTEXPR auto set_next(BOOL _Fl) noexcept {
@@ -71,7 +71,7 @@ public:
         return 64;
     }
 
-    FTD_CONSTEXPR uint64_t& _mainf() {
+    uint64_t& _mainf() {
         return m_Bits;
     }
 };

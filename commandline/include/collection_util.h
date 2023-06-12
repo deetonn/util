@@ -33,6 +33,7 @@ public:
     size_t push(_Ty&& _Value) {
         const auto _Next = m_position == 0 ? 0 : (m_position + 1);
         if (_Next >= N) {
+            /*out of space*/
             return OutOfSpace;
         }
         m_stack[_Next] = _STD move(_Value);
@@ -105,7 +106,6 @@ public:
 
     iterator begin() noexcept { return iterator(m_stack); }
     iterator end() noexcept { return iterator(m_stack + m_position); }
-
     std::reverse_iterator<_Ty> rbegin() {
         return std::reverse_iterator<_Ty>(end());
     }
@@ -125,7 +125,7 @@ public:
 #define _ERROR_OOM_() _UTL panic("failed to allocate enough memory");
 
 template<collection_suitable _Ty, typename _Alloc = _UTL default_allocator>
-class vector {
+class [[deprecated("use future::vector")]] vector {
 private:
     _Ty* m_elements{ nullptr };
     size_t m_element_count{ 0 };
@@ -217,9 +217,6 @@ public:
         if (_Pos < 0 || _Pos > m_element_count) {
             return m_default;
         }
-#if defined _DEBUG
-        FTD_VERIFY(this->size() >= _Pos, "access out of range");
-#endif
         return m_elements[_Pos];
     }
 
@@ -321,10 +318,8 @@ private:
     }
 };
 
-template<class T>
-void display(T& iterable) {
-    auto name = type_info<T>::name();
-    std::cout << name << "(" << iterable.size() << ") [";
+void display(auto& iterable) {
+    std::cout << "Vector(" << iterable.size() << ") [";
     auto end = std::end(iterable);
     for (auto start = std::begin(iterable);
         start < end;
@@ -337,7 +332,7 @@ void display(T& iterable) {
     }
 }
 
-auto length(const auto& iterator) -> decltype(iterator.size()) {
+auto length(const auto& iterator) -> size_t {
     return iterator.size();
 }
 
