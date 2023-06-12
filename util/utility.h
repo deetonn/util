@@ -33,6 +33,7 @@
 #include "lexing.hpp"
 #include "context.hpp"
 #include "array.hpp"
+#include "fs.hpp"
 
 #include "common.h"
 
@@ -65,7 +66,7 @@ inline U declval() {}
 
 template<typename... Types>
 auto print(
-    const std::_Fmt_string<Types...> _Fmt,
+    const std::format_string<Types...> _Fmt,
     Types&&... _Args) -> void
 {
     _UTL writeln<Types...>(_Fmt, _Args...);

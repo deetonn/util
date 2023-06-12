@@ -8,17 +8,32 @@ template<class R, class ...Args>
 class function;
 
 template<class R, class ...Args>
+struct _Func_storage {
+    using type = R(*)(Args...);
+    using lambda = decltype([](Args...)->R { return R{}; });
+    type __function;
+};
+
+template<class R, class ...Args>
 class function<R(Args...)> {
-public:
-    using function_type = decltype([&](Args...) {} -> R);
 private:
-    function_type* _Ff;
+    _Func_storage<R, Args...> __storage{};
 public:
-    function(function_type _Ff) {
-        this->_Ff = new(std::nothrow) function_type(_Ff);
-    };
-    ~function() {
-        delete _Ff;
+    template<class F>
+    // constructor that accepts lambdas that return R and have Args... as arguments
+    function(F&& f) noexcept {
+        __storage.__function = [&f](Args... args) -> R {
+            return f(args...);
+        };
+    }
+
+    ~function() noexcept {
+
+    }
+
+    // call operator
+    R operator()(Args... args) const noexcept {
+        return __storage.__function(args...);
     }
 };
 

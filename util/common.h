@@ -1,11 +1,26 @@
 #pragma once
 
+#ifndef __COMMON_H
+#define __COMMON_H
+
 #ifndef _UTIL_API
 #define _UTIL_API namespace utl {
 #endif
 
 #ifndef _UTIL_API_END
 #define _UTIL_API_END }
+#endif
+
+#ifndef _UTIL_DETAIL_BEGIN
+#define _UTIL_DETAIL_BEGIN namespace utl::detail {
+#endif
+
+#ifndef _UTIL_DETAIL_END
+#define _UTIL_DETAIL_END }
+#endif
+
+#ifndef _DETAIL
+#define _DETAIL ::utl::detail:: 
 #endif
 
 #ifndef _UTIL_EXPERIMENTAL
@@ -50,6 +65,14 @@
 #define _NORETURN [[noreturn]]
 #endif
 
+#ifndef FTD_LIKELY
+#define FTD_LIKELY [[likely]]
+#endif
+
+#ifndef FTD_UNLIKELY
+#define FTD_UNLIKELY [[unlikely]]
+#endif
+
 #ifndef FTD_CONSTEVAL
 #define FTD_CONSTEVAL __builtin_is_constant_evaluated()
 #endif
@@ -68,17 +91,6 @@ FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
         throw std::exception(message);
     }
 
-    auto _Ostr = _UTL __io_func(STDERR);
-    __assume(_Ostr != nullptr);
-    __assume(message != nullptr);
-    /*
-    verify at least one byte has been written for
-    proper io diagnostics
-    */
-    if (!_Ostr->calls) {
-        _UTL tfprintf(_Ostr, "\n\0");
-    }
-
     auto stack = _STD stacktrace::current();
     auto _Position = 0;
     // Traverse the stack trace backwards
@@ -90,31 +102,37 @@ FTD_NORETURN constexpr inline auto panic(const char* message) -> _Void {
     {
         const auto& _Fr = *frame;
         if (_Position == stack.size() - 2) {
-            _UTL tfprintf(_Ostr,
-                "%s <-- [panic here at line %zu in file %s]\n",
+            writeln(
+                "{} <-- [panic here at line {} in file {}]",
                 _Fr.description().c_str(),
                 _Fr.source_line(),
                 _Fr.source_file().c_str());
         }
         else {
-            _UTL tfprintf(_Ostr,
-                "[%zu] %s\n",
+            writeln(
+                "[{}] {}\n",
                 _Fr.source_line(),
                 _Fr.description().c_str());
         }
     }
 
-    _UTL tfprintf(
-        _Ostr,
-        "\n[panic]: %s\n", message
+    writeln(
+        "\n[panic]: {}\n", message
     );
 
     std::unreachable();
 }
 
+template<class ...Types>
+auto fmt(std::format_string<Types...> _Fmt,
+    Types&&... _Args) noexcept -> std::string 
+{
+    return std::format(_Fmt, _STD move(_Args)...);
+}
+
 template<class... Types>
 FTD_NORETURN constexpr inline auto vpanic(
-    const std::_Fmt_string<Types...> _Fmt,
+    const std::format_string<Types...> _Fmt,
     Types&&... Args) 
 {
     auto fmt = std::format<Types...>(_Fmt, _STD move(Args)...);
@@ -123,13 +141,13 @@ FTD_NORETURN constexpr inline auto vpanic(
 
 template<typename _Void = std::void_t<void>>
 FTD_NORETURN constexpr inline auto panic_if(BOOL _Cond, const char* _Msg) -> _Void {
-    if (_Cond)
+    if (_Cond) FTD_UNLIKELY
         _UTL panic<_Void>(_Msg);
 }
 
 template<typename _Void = std::void_t<void, size_t>>
 FTD_NORETURN constexpr inline auto panic_if_not(BOOL _Cond, const char* _Msg) -> _Void {
-    if (!_Cond)
+    if (!_Cond) FTD_UNLIKELY
         _UTL panic<_Void>(_Msg);
 }
 
@@ -188,4 +206,71 @@ public:
     }
 };
 
+template<class T>
+class locked {
+public:
+    using value_type = T;
+
+    enum class response {
+        wait_if_locked,
+        skip_if_locked
+    };
+private:
+    value_type m_value;
+    std::mutex m_lock;
+public:
+
+    locked(T&& initializer) : m_value(_STD move(initializer)) {}
+    template<class ...Types>
+    locked(Types... args) noexcept (noexcept (T{ args... })) {
+        m_value = T{ args... };
+    }
+
+    template<class F>
+    void edit(const F& editor, 
+              const response& response = response::wait_if_locked) {
+        if (response == response::skip_if_locked) {
+            if (!m_lock.try_lock())
+                return;
+        }
+        else {
+            while (!m_lock.try_lock()) {}
+        }
+        editor(m_value);
+        m_lock.unlock();
+    }
+};
+
+template<class T, class E>
+class Result {
+private:
+    T _Value;
+    E _Error;
+    BOOL _HasValue;
+public:
+    Result(T&& _Value) : _Value(std::move(_Value)), _HasValue(true) {}
+    Result(E&& _Error) : _Error(std::move(_Error)), _HasValue(false) {}
+
+    BOOL has_value() const {
+        return _HasValue;
+    }
+
+    T value() const {
+        return _Value;
+    }
+
+    E error() const {
+        return _Error;
+    }
+
+    T expect(std::string message) const {
+        if (!_HasValue) {
+            panic(message.c_str());
+        }
+        return _Value;
+    }
+};
+
 _UTIL_API_END
+
+#endif // !__COMMON_H

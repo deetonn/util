@@ -21,3 +21,6 @@
 #define FTD_NODISCARD [[nodiscard]]
 #define FTD_NORETURN [[noreturn]]
 #define FTD_CONSTEXPR
+#define _UTIL_DETAIL_BEGIN namespace utl::detail {
+#define _UTIL_DETAIL_END }
+#define MAX_PATH

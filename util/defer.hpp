@@ -161,6 +161,7 @@ template<class F>
 using defer_t = singular_defer_context<F>;
 
 #define defer ftd::singular_defer_context STRING_JOIN(__0_defer, __LINE__) = [&] 
+#define defer_no_semi(code) ftd::singular_defer_context STRING_JOIN(__0_defer, __LINE__) = [&] code;
 
 template<class F, class ...Args>
 using variadic_defer_t = singular_variadic_defer_context<F, Args...>;

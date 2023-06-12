@@ -2,16 +2,19 @@
 #include "utility.h"
 #endif
 
-#include <array>
-
 using namespace utl::typedefs;
 using namespace std::chrono_literals;
 
+#include <print>
+
 int main()
 {
-    auto* name = new std::string("Deeton");
+    auto result = ftd::filesystem::read_file("C:\\Tests\\Test.txt");
 
-    defer {
-        delete name;
-    };
+    if (result.has_value()) {
+        ftd::print("Contents:\n{}", result.value());
+    }
+    else {
+        ftd::print("Failure: {}", result.error().msg);
+    }
 }

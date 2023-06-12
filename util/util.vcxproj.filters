@@ -19,6 +19,9 @@
     <Filter Include="Header Files\future">
       <UniqueIdentifier>{b924d112-a4c8-4656-ae48-9be720265e43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\io">
+      <UniqueIdentifier>{96a34e5d-03d2-4387-98ba-36b6245cf829}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utility.h">
@@ -95,6 +98,9 @@
     </ClInclude>
     <ClInclude Include="array.hpp">
       <Filter>Header Files\future</Filter>
+    </ClInclude>
+    <ClInclude Include="fs.hpp">
+      <Filter>Header Files\io</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

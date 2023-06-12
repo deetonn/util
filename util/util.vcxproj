@@ -137,6 +137,7 @@
     <ClInclude Include="defer.hpp" />
     <ClInclude Include="dict.hpp" />
     <ClInclude Include="error.h" />
+    <ClInclude Include="fs.hpp" />
     <ClInclude Include="function.hpp" />
     <ClInclude Include="hex_conversion.h" />
     <ClInclude Include="integral_util.h" />

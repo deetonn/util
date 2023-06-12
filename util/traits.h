@@ -45,4 +45,6 @@ concept allocator = requires (_Ty t) {
     { t.template alloc_many<_El>((size_t)8) } -> std::same_as<_El*>;
 } && std::is_default_constructible_v<_Ty>;
 
+
+
 _UTIL_API_END

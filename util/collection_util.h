@@ -318,8 +318,10 @@ private:
     }
 };
 
-void display(auto& iterable) {
-    std::cout << "Vector(" << iterable.size() << ") [";
+template<class T>
+void display(T& iterable) {
+    auto name = type_info<T>::name();
+    std::cout << name << "(" << iterable.size() << ") [";
     auto end = std::end(iterable);
     for (auto start = std::begin(iterable);
         start < end;
