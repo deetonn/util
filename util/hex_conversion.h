@@ -4,6 +4,10 @@
 
 #include <cassert>
 
+#ifndef FTD_ASSERT
+#define FTD_ASSERT(cond, m) assert((cond) && m)
+#endif
+
 _UTIL_API
 
 typedef struct {
@@ -57,7 +61,7 @@ inline auto verify_hex_character(const char& ch) {
         return (int)ch;
     }
 
-    HEX_ASSERT(0, "Hex character out of range.");
+    FTD_ASSERT(0, "Hex character out of range.");
 }
 
 inline auto disect_string_for_hex_contents(const char* text)

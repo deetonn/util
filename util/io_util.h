@@ -31,14 +31,6 @@ auto write(
     std::cout << _Formatted;
 }
 
-template<typename... Types>
-auto fmt(
-    const std::_Fmt_string<Types...> _Fmt,
-    Types... _Args) -> std::string {
-    auto _Formatted = _STD vformat(_Fmt._Str, _STD make_format_args(_Args...));
-    return _Formatted;
-}
-
 /*  
 * Actual filesystem related tasks rather than just 
 * I/O stream & formatting related tasks.
